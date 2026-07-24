@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Portafolio de Pruebas · Laboratorio HDSR</title>
+<meta name="description" content="Portafolio de pruebas del Laboratorio Clínico del Hospital Departamental San Rafael de Zarzal.">
+
+<!-- ===== PWA ===== -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F6E5C">
+<meta name="application-name" content="Portafolio Lab">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Portafolio Lab">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+
+<!-- Favicon -->
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
+<!-- Windows -->
+<meta name="msapplication-TileColor" content="#0F6E5C">
+<meta name="msapplication-TileImage" content="icons/icon-144.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#F4F7F5; --surface:#FFFFFF; --surface-2:#FAFCFB;
+    --ink:#152420; --ink-soft:#5C6E67; --ink-faint:#8B9A93;
+    --line:#E2EAE6; --line-strong:#CDD9D3;
+    --primary:#0F6E5C; --primary-deep:#0A5245; --primary-tint:#E6F1ED;
+    --blood:#B0242A; --blood-tint:#FBEAEA;
+    --ok:#1C8A57; --ok-tint:#E4F3EB;
+    --warn:#B77400; --warn-tint:#FBF0DC;
+    --none:#94A29C; --none-tint:#EEF2F0;
+    --shadow:0 1px 2px rgba(21,36,32,.05), 0 8px 24px rgba(21,36,32,.06);
+    --shadow-lg:0 12px 40px rgba(21,36,32,.16);
+    --r:14px; --r-sm:10px; --r-lg:20px;
+    --wrap:960px;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .mono{font-family:"Space Mono",ui-monospace,monospace}
+  button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit}
+  input,select,textarea{font-family:inherit; font-size:16px}
+  ::selection{background:var(--primary-tint)}
+  body.no-scroll{overflow:hidden}
+
+  .wrap{max-width:var(--wrap); margin:0 auto; padding:0 18px}
+
+  /* ---------- Header ---------- */
+  header.top{
+    background:linear-gradient(180deg,var(--primary-deep),var(--primary));
+    color:#fff; padding:calc(env(safe-area-inset-top) + 18px) 0 22px;
+    position:relative; overflow:hidden;
+  }
+  header.top::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(120% 90% at 100% 0%, rgba(255,255,255,.10), transparent 60%);
+    pointer-events:none;
+  }
+  .top-row{display:flex; align-items:center; gap:14px; position:relative}
+  .logo{
+    width:54px; height:54px; border-radius:13px; flex-shrink:0;
+    background:#fff; display:grid; place-items:center; overflow:hidden;
+    box-shadow:0 2px 10px rgba(0,0,0,.18);
+  }
+  .logo img{width:100%; height:100%; object-fit:contain}
+  .logo svg{width:64%; height:64%}
+  .titles{min-width:0; flex:1}
+  .eyebrow{
+    font-family:"Space Mono",monospace; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:rgba(255,255,255,.72); margin:0 0 2px;
+  }
+  h1.brand{
+    font-family:"Archivo",sans-serif; font-weight:800; font-size:20px;
+    line-height:1.12; margin:0; letter-spacing:-.01em;
+  }
+  .subbrand{font-size:12.5px; color:rgba(255,255,255,.82); margin-top:3px}
+  .gear{
+    width:40px; height:40px; border-radius:11px; flex-shrink:0;
+    background:rgba(255,255,255,.14); display:grid; place-items:center;
+    color:#fff; transition:background .15s;
+  }
+  .gear:active{background:rgba(255,255,255,.28)}
+  .gear svg{width:21px; height:21px}
+
+  /* ---------- Reserva de sangre ---------- */
+  .blood{
+    margin-top:18px; background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.16); border-radius:var(--r);
+    padding:13px 14px 14px; position:relative;
+  }
+  .blood-head{display:flex; align-items:center; gap:8px; margin-bottom:11px}
+  .blood-drop{width:17px; height:17px; color:#FFD7D3}
+  .blood-title{font-family:"Archivo",sans-serif; font-weight:700; font-size:13.5px; letter-spacing:.02em; flex:1; color:#fff}
+  .blood-edit{
+    font-size:11px; font-weight:600; color:#fff; background:rgba(255,255,255,.16);
+    padding:5px 10px; border-radius:20px; display:flex; align-items:center; gap:5px;
+  }
+  .blood-edit svg{width:13px; height:13px}
+  /* Total destacado */
+  .blood-total{display:flex; align-items:center; gap:11px; margin-bottom:13px}
+  .blood-total .num{font-family:"Archivo",sans-serif; font-weight:800; font-size:38px; line-height:1; color:#fff; letter-spacing:-.02em; display:block}
+  .blood-total .lbl{font-size:12.5px; color:rgba(255,255,255,.85); line-height:1.3; max-width:140px}
+  /* O+ / O- grandes */
+  .blood-primary{display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:9px}
+  .bg-big{background:#fff; border-radius:13px; padding:11px 10px 10px; text-align:center; border:2px solid transparent; position:relative}
+  .bg-big .bg-type{font-family:"Archivo",sans-serif; font-weight:700; font-size:13.5px; color:var(--ink); line-height:1.1; letter-spacing:-.01em}
+  .bg-big .bg-count{font-family:"Archivo",sans-serif; font-weight:800; font-size:30px; line-height:1.05; margin-top:2px}
+  .bg-big .bg-unit{font-size:9.5px; color:var(--ink-faint); letter-spacing:.03em; text-transform:uppercase}
+  /* Resto pequeños */
+  .blood-rest{display:grid; grid-template-columns:repeat(6,1fr); gap:6px}
+  .bg-sm{background:rgba(255,255,255,.92); border-radius:9px; padding:6px 2px 5px; text-align:center; border:1.5px solid transparent}
+  .bg-sm .bg-type{font-family:"Space Mono",monospace; font-weight:700; font-size:11px; color:var(--ink); line-height:1}
+  .bg-sm .bg-count{font-family:"Archivo",sans-serif; font-weight:800; font-size:16px; line-height:1.1; margin-top:1px}
+  /* estados comunes */
+  [data-st="ok"]{border-color:var(--ok)}   [data-st="ok"] .bg-count{color:var(--ok)}
+  [data-st="low"]{border-color:var(--warn)} [data-st="low"] .bg-count{color:var(--warn)}
+  .bg-big[data-st="none"], .bg-sm[data-st="none"]{background:var(--none-tint)} [data-st="none"] .bg-count{color:var(--none)}
+  .blood-meta{font-size:11px; color:rgba(255,255,255,.72); margin-top:12px; display:flex; gap:6px; flex-wrap:wrap; align-items:center}
+  .blood-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+
+  /* ---------- Buscador ---------- */
+  .search-wrap{position:sticky; top:0; z-index:30; background:var(--paper); padding:14px 0 10px}
+  .search{
+    display:flex; align-items:center; gap:10px; background:var(--surface);
+    border:1.5px solid var(--line-strong); border-radius:var(--r);
+    padding:0 14px; box-shadow:var(--shadow); transition:border-color .15s;
+  }
+  .search{cursor:text}
+  .search:focus-within{border-color:var(--primary)}
+  .search svg{width:20px; height:20px; color:var(--ink-faint); flex-shrink:0}
+  .search input{border:none; outline:none; background:none; padding:14px 0; flex:1; color:var(--ink)}
+  .search input::placeholder{color:var(--ink-faint)}
+  .search .clear{color:var(--ink-faint); font-size:22px; line-height:1; padding:4px; display:none}
+  .search.has-text .clear{display:block}
+
+  .filters{display:flex; gap:7px; overflow-x:auto; padding:2px 0 4px; -webkit-overflow-scrolling:touch; scrollbar-width:none}
+  .filters::-webkit-scrollbar{display:none}
+  .chip{
+    white-space:nowrap; font-size:12.5px; font-weight:600; color:var(--ink-soft);
+    background:var(--surface); border:1px solid var(--line); border-radius:20px;
+    padding:7px 13px; transition:all .12s;
+  }
+  .chip.active{background:var(--primary); color:#fff; border-color:var(--primary)}
+
+  .count-line{font-size:12px; color:var(--ink-faint); padding:2px 2px 10px}
+
+  /* ---------- Lista de pruebas ---------- */
+  .list{display:flex; flex-direction:column; gap:9px; padding-bottom:40px}
+  .test{
+    cursor:pointer;
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+    padding:14px 15px; box-shadow:var(--shadow); transition:transform .08s, border-color .12s;
+    text-align:left; width:100%; display:block;
+  }
+  .test:active{transform:scale(.992); border-color:var(--line-strong)}
+  .test-top{display:flex; align-items:flex-start; gap:10px}
+  .test-name{font-family:"Archivo",sans-serif; font-weight:700; font-size:15.5px; line-height:1.22; flex:1; letter-spacing:-.005em}
+  .cups{
+    font-family:"Space Mono",monospace; font-size:12px; font-weight:700; color:var(--primary);
+    background:var(--primary-tint); padding:3px 8px; border-radius:7px; white-space:nowrap; flex-shrink:0;
+  }
+  .test-badges{display:flex; flex-wrap:wrap; gap:6px; margin-top:9px}
+  .badge{font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px; display:inline-flex; align-items:center; gap:4px}
+  .badge svg{width:12px; height:12px}
+  .b-sec{background:var(--surface-2); color:var(--ink-soft); border:1px solid var(--line)}
+  .b-here{background:var(--ok-tint); color:var(--ok)}
+  .b-ref{background:var(--warn-tint); color:var(--warn)}
+  .b-time{background:var(--primary-tint); color:var(--primary-deep)}
+  .b-days{background:#EEE9FA; color:#5B3FA6}
+
+  /* Indicaciones internas del laboratorio (bloqueadas) */
+  .lab-block{margin:13px 0; border-radius:13px; border:1px solid var(--line); background:var(--surface-2); padding:14px}
+  .lab-head{display:flex; align-items:center; gap:9px; margin-bottom:9px}
+  .lab-head .ic{width:32px; height:32px; border-radius:9px; background:var(--primary-tint); color:var(--primary); display:grid; place-items:center; flex-shrink:0}
+  .lab-head .ic svg{width:17px; height:17px}
+  .lab-head .tx{flex:1; min-width:0}
+  .lab-title{font-family:"Archivo",sans-serif; font-weight:700; font-size:13.5px; color:var(--ink); line-height:1.2}
+  .lab-sub{font-size:11.5px; color:var(--ink-faint); margin-top:1px}
+  .lab-btn{width:100%; background:var(--primary); color:#fff; font-weight:700; font-size:13.5px; padding:11px; border-radius:var(--r-sm); display:flex; align-items:center; justify-content:center; gap:7px}
+  .lab-btn svg{width:15px; height:15px}
+  .lab-open{font-size:14.5px; color:var(--ink); line-height:1.5; white-space:pre-wrap}
+
+  /* Días de procesamiento en el detalle */
+  .days-block{margin:13px 0; border-radius:13px; padding:14px; border:1px solid #DED5F5; background:#F6F3FD}
+  .days-head{display:flex; align-items:center; gap:8px; font-family:"Archivo",sans-serif; font-weight:700; font-size:13.5px; color:#4A3A85; margin-bottom:11px}
+  .days-head svg{width:17px; height:17px; color:#5B3FA6}
+  .days-after{margin-top:9px; padding-top:9px; border-top:1px dashed #DED5F5; font-size:13.5px; color:var(--ink); line-height:1.45}
+  .days-after b{color:#4A3A85}
+
+  /* Selector de días en el editor */
+  .day-picker{display:flex; gap:6px; flex-wrap:wrap}
+  .day-pick{padding:10px 15px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; font-weight:600; font-size:13px; background:var(--surface); color:var(--ink-soft); border:1.5px solid var(--line-strong); user-select:none}
+  .day-pick.on{background:var(--primary); color:#fff; border-color:var(--primary)}
+  .b-cold{background:#E7F0FB; color:#215D9C}
+  .b-freeze{background:#E9EAFB; color:#4A3F9C}
+  .b-urg{background:var(--blood-tint); color:var(--blood)}
+  .b-lock{background:var(--warn-tint); color:var(--warn)}
+
+  /* Bloque de servicios en el detalle */
+  .svc-block{margin:13px 0; border-radius:13px; padding:14px; border:1px solid var(--line); background:var(--surface-2)}
+  .svc-block.excl{background:var(--warn-tint); border-color:#F0DCA8}
+  .svc-head{display:flex; align-items:center; gap:8px; font-family:"Archivo",sans-serif; font-weight:700; font-size:13.5px; color:var(--ink); margin-bottom:11px}
+  .svc-head svg{width:17px; height:17px; color:var(--primary)}
+  .svc-block.excl .svc-head{color:var(--warn)} .svc-block.excl .svc-head svg{color:var(--warn)}
+  .svc-chips{display:flex; flex-wrap:wrap; gap:7px}
+  .svc-chip{font-size:12.5px; font-weight:600; background:#fff; border:1px solid var(--line-strong); border-radius:20px; padding:6px 12px; color:var(--ink)}
+  .svc-block.excl .svc-chip{border-color:#E4C98A; color:#8A5A00}
+  .svc-note{font-size:11.5px; color:var(--warn); margin-top:9px; font-weight:600}
+
+  /* Selector de servicios en el editor */
+  .svc-picker{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:4px}
+  .svc-opt{display:flex; align-items:center; gap:8px; border:1.5px solid var(--line-strong); border-radius:11px; padding:9px 12px; font-size:13.5px; font-weight:600; color:var(--ink-soft); user-select:none}
+  .svc-opt.on{background:var(--primary-tint); border-color:var(--primary); color:var(--primary-deep)}
+  .svc-opt .tick{width:19px; height:19px; border-radius:6px; border:1.5px solid var(--line-strong); display:grid; place-items:center; flex-shrink:0}
+  .svc-opt.on .tick{background:var(--primary); border-color:var(--primary)}
+  .svc-opt .tick svg{width:12px; height:12px; color:#fff; display:none}
+  .svc-opt.on .tick svg{display:block}
+
+  /* Invitación a instalar la app */
+  .instalar{
+    position:fixed; left:12px; right:12px; bottom:calc(env(safe-area-inset-bottom) + 12px);
+    z-index:150; background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; box-shadow:var(--shadow-lg); padding:14px;
+    display:flex; gap:12px; align-items:center;
+    transform:translateY(140%); transition:transform .32s cubic-bezier(.32,.72,0,1);
+  }
+  .instalar.on{transform:translateY(0)}
+  @media(min-width:640px){ .instalar{left:auto; right:20px; width:390px} }
+  .instalar img{width:46px; height:46px; border-radius:11px; flex-shrink:0; box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .instalar .tx{flex:1; min-width:0}
+  .instalar .t1{font-family:"Archivo",sans-serif; font-weight:800; font-size:14px; line-height:1.2}
+  .instalar .t2{font-size:12.5px; color:var(--ink-soft); margin-top:3px; line-height:1.35}
+  .instalar .acc{display:flex; gap:7px; margin-top:10px}
+  .instalar button{
+    font-size:13px; font-weight:700; padding:9px 14px; border-radius:9px;
+    background:var(--primary); color:#fff;
+  }
+  .instalar button.no{background:var(--surface-2); color:var(--ink-soft); border:1px solid var(--line)}
+  .instalar .cerrar{
+    position:absolute; top:8px; right:9px; width:26px; height:26px; border-radius:50%;
+    background:var(--surface-2); color:var(--ink-faint); font-size:16px; line-height:1;
+    display:grid; place-items:center; padding:0;
+  }
+  .ios-paso{display:inline-flex; align-items:center; gap:4px; font-weight:600; color:var(--ink)}
+  .ios-paso svg{width:14px; height:14px; vertical-align:-2px}
+
+  /* Prueba suspendida */
+  .test.susp{opacity:.72; border-style:dashed}
+  .b-susp{background:#FBE3E3; color:#A02020}
+  .susp-block{margin:0 0 14px; border-radius:13px; padding:13px 14px; display:flex; gap:11px;
+    background:#FDECEC; border:1.5px solid #F2C2C2; border-left:5px solid var(--blood)}
+  .susp-block .ic{width:30px;height:30px;border-radius:9px;background:var(--blood);color:#fff;display:grid;place-items:center;flex-shrink:0}
+  .susp-block .ic svg{width:17px;height:17px}
+  .susp-block .tt{font-family:"Archivo",sans-serif;font-weight:800;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--blood);margin-bottom:2px}
+  .susp-block .ms{font-size:14px;color:#5E1A1D;line-height:1.45}
+
+  /* Selector de disponibilidad */
+  .disp-lista{max-height:300px;overflow-y:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:var(--r-sm);padding:4px}
+  .disp-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;user-select:none}
+  .disp-item:hover{background:var(--surface-2)}
+  .disp-item .tick{width:19px;height:19px;border-radius:6px;border:1.5px solid var(--line-strong);display:grid;place-items:center;flex-shrink:0}
+  .disp-item .tick svg{width:12px;height:12px;color:#fff;display:none}
+  .disp-item.on .tick{background:var(--blood);border-color:var(--blood)}
+  .disp-item.on .tick svg{display:block}
+  .disp-item.on .dn{color:var(--blood)}
+  .disp-item .dn{flex:1;min-width:0;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .disp-item .dc{font-family:"Space Mono",monospace;font-size:11.5px;color:var(--ink-faint);flex-shrink:0}
+
+  /* Tubos con color */
+  .tubo-val{display:inline-flex; align-items:center; gap:8px}
+  .tubo-dot{width:13px; height:13px; border-radius:50%; flex-shrink:0; border:1.5px solid rgba(0,0,0,.14)}
+  .tubo-nom{font-weight:700}
+  /* Editor de tubos en Ajustes */
+  .tubo-row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line)}
+  .tubo-row:last-of-type{border-bottom:none}
+  .tubo-row input[type=color]{width:38px; height:34px; border:1px solid var(--line-strong); border-radius:8px; padding:2px; background:var(--surface); flex-shrink:0; cursor:pointer}
+  .tubo-row input[type=text]{flex:1; min-width:0; border:1.5px solid var(--line-strong); border-radius:9px; padding:9px 11px; font-size:13.5px}
+  .color-field{display:flex; gap:10px; align-items:center}
+  .color-field input[type=color]{width:46px; height:44px; border:1px solid var(--line-strong); border-radius:10px; padding:2px; background:var(--surface); flex-shrink:0; cursor:pointer}
+
+  /* Selector de pruebas destacadas */
+  .dest-lista{max-height:260px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--line); border-radius:var(--r-sm); padding:4px}
+  .dest-item{display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; cursor:pointer; user-select:none}
+  .dest-item:hover{background:var(--surface-2)}
+  .dest-item .tick{width:19px; height:19px; border-radius:6px; border:1.5px solid var(--line-strong); display:grid; place-items:center; flex-shrink:0}
+  .dest-item .tick svg{width:12px; height:12px; color:#fff; display:none}
+  .dest-item.on .tick{background:var(--primary); border-color:var(--primary)}
+  .dest-item.on .tick svg{display:block}
+  .dest-item .dn{flex:1; min-width:0; font-size:13.5px; font-weight:600; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .dest-item .dc{font-family:"Space Mono",monospace; font-size:11.5px; color:var(--ink-faint); flex-shrink:0}
+
+  /* Chips de servicios en Ajustes */
+
+  .empty{text-align:center; padding:50px 20px; color:var(--ink-faint)}
+  .empty svg{width:40px; height:40px; margin-bottom:12px; opacity:.5}
+  .empty h3{font-family:"Archivo",sans-serif; color:var(--ink-soft); margin:0 0 4px; font-size:16px}
+
+  /* ---------- Modal / hoja inferior ---------- */
+  .scrim{position:fixed; inset:0; background:rgba(21,36,32,.5); backdrop-filter:blur(3px); z-index:100; opacity:0; pointer-events:none; transition:opacity .22s}
+  .scrim.on{opacity:1; pointer-events:auto}
+  /* Panel: solo el cuerpo hace scroll (evita el bloqueo de scroll en escritorio) */
+  .sheet{
+    position:fixed; left:0; right:0; bottom:0; z-index:101; background:var(--surface);
+    border-radius:var(--r-lg) var(--r-lg) 0 0; max-height:92vh;
+    display:flex; flex-direction:column; overflow:hidden;
+    transform:translateY(100%); transition:transform .28s cubic-bezier(.32,.72,0,1), visibility .28s;
+    box-shadow:var(--shadow-lg); visibility:hidden;
+  }
+  .sheet.on{transform:translateY(0); visibility:visible}
+  @media(min-width:640px){
+    .sheet{left:50%; right:auto; bottom:auto; top:50%; width:560px; max-width:92vw;
+      border-radius:var(--r-lg); transform:translate(-50%,-46%) scale(.97); opacity:0; max-height:88vh;
+      transition:transform .22s ease, opacity .22s ease, visibility .22s}
+    .sheet.on{transform:translate(-50%,-50%) scale(1); opacity:1}
+  }
+  .grab{width:38px; height:4px; background:var(--line-strong); border-radius:2px; margin:9px auto 2px; flex-shrink:0}
+  @media(min-width:640px){.grab{display:none}}
+  .sheet-head{position:relative; background:var(--surface); padding:16px 20px 12px; border-bottom:1px solid var(--line); flex-shrink:0}
+  .sheet-head .x{position:absolute; top:14px; right:16px; width:34px; height:34px; border-radius:50%; background:var(--surface-2); color:var(--ink-soft); font-size:20px; display:grid; place-items:center; cursor:pointer}
+  .sheet-title{font-family:"Archivo",sans-serif; font-weight:800; font-size:19px; line-height:1.18; padding-right:40px; letter-spacing:-.01em}
+  .sheet-sub{margin-top:5px; display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .sheet-body{
+    padding:6px 20px calc(env(safe-area-inset-bottom) + 24px);
+    flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .field{padding:13px 0; border-bottom:1px solid var(--line); display:flex; gap:13px}
+  .field:last-child{border-bottom:none}
+  .field-ic{width:34px; height:34px; border-radius:9px; background:var(--primary-tint); color:var(--primary); display:grid; place-items:center; flex-shrink:0}
+  .field-ic svg{width:18px; height:18px}
+  .field-ic.warm{background:var(--warn-tint); color:var(--warn)}
+  .field-ic.cold{background:#E7F0FB; color:#215D9C}
+  .field-ic.reject{background:var(--blood-tint); color:var(--blood)}
+  .field-body{flex:1; min-width:0}
+  .field-label{font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:2px}
+  .field-val{font-size:14.5px; color:var(--ink); line-height:1.45; word-break:break-word}
+  .field-val.mono{font-size:15px; font-weight:700; color:var(--primary-deep)}
+  .reject-list{margin:0; padding-left:2px; list-style:none}
+  .reject-list li{position:relative; padding-left:16px; margin-bottom:3px; font-size:14px}
+  .reject-list li::before{content:"×"; position:absolute; left:0; color:var(--blood); font-weight:700}
+
+  /* ---------- Config / Admin ---------- */
+  .cfg-tabs{display:flex; gap:6px; padding:12px 20px 0; background:var(--surface); flex-shrink:0}
+  .cfg-tab{flex:1; font-size:12.5px; font-weight:700; color:var(--ink-soft); padding:9px 6px; border-radius:10px 10px 0 0; text-align:center; border-bottom:2px solid transparent}
+  .cfg-tab.active{color:var(--primary); border-bottom-color:var(--primary); background:var(--primary-tint)}
+  .form-row{margin-bottom:13px}
+  .form-row label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:5px}
+  .form-row .hint{font-size:11px; color:var(--ink-faint); font-weight:400; margin-top:4px}
+  .inp, .sel, .txt{
+    width:100%; border:1.5px solid var(--line-strong); border-radius:var(--r-sm);
+    padding:11px 12px; background:var(--surface); color:var(--ink); outline:none; transition:border-color .15s;
+  }
+  .inp:focus,.sel:focus,.txt:focus{border-color:var(--primary)}
+  .txt{resize:vertical; min-height:64px; line-height:1.5}
+  .form-two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .switch{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 13px; background:var(--surface-2); border-radius:var(--r-sm); border:1px solid var(--line); margin-bottom:10px}
+  .switch span{font-size:13.5px; font-weight:600; color:var(--ink)}
+  .toggle{width:46px; height:27px; border-radius:20px; background:var(--line-strong); position:relative; flex-shrink:0; transition:background .18s}
+  .toggle::after{content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.2); transition:transform .18s}
+  .toggle.on{background:var(--primary)} .toggle.on::after{transform:translateX(19px)}
+
+  .btn{
+    display:flex; align-items:center; justify-content:center; gap:7px; width:100%;
+    background:var(--primary); color:#fff; font-weight:700; font-size:15px;
+    padding:14px; border-radius:var(--r); transition:opacity .12s, transform .08s;
+  }
+  .btn:active{transform:scale(.99)} .btn:disabled{opacity:.5}
+  .btn svg{width:18px; height:18px}
+  .btn.ghost{background:var(--surface-2); color:var(--ink); border:1.5px solid var(--line-strong)}
+  .btn.danger{background:var(--blood-tint); color:var(--blood)}
+  .btn-row{display:flex; gap:10px; margin-top:8px}
+
+  /* admin list of tests */
+  .adm-item{display:flex; align-items:center; gap:11px; padding:12px 0; border-bottom:1px solid var(--line)}
+  .adm-item .an{flex:1; min-width:0}
+  .adm-name{font-weight:700; font-size:14px; font-family:"Archivo",sans-serif}
+  .adm-code{font-size:11.5px; color:var(--ink-faint); font-family:"Space Mono",monospace}
+  .icon-btn{width:36px; height:36px; border-radius:9px; background:var(--surface-2); color:var(--ink-soft); display:grid; place-items:center; flex-shrink:0}
+  .icon-btn svg{width:17px;height:17px}
+  .icon-btn.del{color:var(--blood); background:var(--blood-tint)}
+
+  /* Historial de movimientos de sangre */
+  .mov-item{display:flex; align-items:center; gap:11px; padding:11px 0; border-bottom:1px solid var(--line)}
+  .mov-item:last-child{border-bottom:none}
+  .mov-badge{font-family:"Space Mono",monospace; font-weight:700; min-width:44px; text-align:center; padding:6px 4px; border-radius:9px; font-size:13.5px; flex-shrink:0}
+  .mov-badge.up{background:var(--ok-tint); color:var(--ok)}
+  .mov-badge.down{background:var(--blood-tint); color:var(--blood)}
+  .mov-body{flex:1; min-width:0}
+  .mov-top{display:flex; align-items:baseline; gap:8px}
+  .mov-grupo{font-family:"Space Mono",monospace; font-weight:700; font-size:14px; color:var(--ink)}
+  .mov-de{font-size:12px; color:var(--ink-faint)}
+  .mov-meta{font-size:11.5px; color:var(--ink-faint); margin-top:2px}
+
+  /* blood editor */
+  .be-grid{display:grid; grid-template-columns:1fr; gap:8px}
+  .be-item{display:flex; align-items:center; gap:10px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r-sm); padding:8px 10px}
+  .be-type{font-weight:700; min-width:88px; font-size:13.5px; flex-shrink:0}
+  .be-item input{width:100%; border:1.5px solid var(--line-strong); border-radius:8px; padding:8px; text-align:center; font-weight:700; font-family:"Archivo",sans-serif}
+  .stepper{display:flex; align-items:center; gap:6px; flex:1}
+  .stepper button{width:32px;height:32px;border-radius:8px;background:var(--surface);border:1px solid var(--line-strong);font-size:18px;font-weight:700;color:var(--primary);flex-shrink:0}
+
+  /* login */
+  .lock-ic{width:56px; height:56px; border-radius:16px; background:var(--primary-tint); color:var(--primary); display:grid; place-items:center; margin:4px auto 14px}
+  .lock-ic svg{width:28px;height:28px}
+
+  .toast{
+    position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom) + 22px); transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:12px 20px; border-radius:30px; font-size:13.5px; font-weight:600;
+    z-index:200; opacity:0; pointer-events:none; transition:all .25s; box-shadow:var(--shadow-lg); max-width:90vw;
+  }
+  .toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+  .toast.err{background:var(--blood)}
+
+  /* Aviso importante (opcional, editable desde Ajustes) */
+  .alerta{
+    display:flex; gap:12px; align-items:flex-start; margin:14px 0 0;
+    background:#FDECEC; border:1.5px solid #F2C2C2; border-left:5px solid var(--blood);
+    border-radius:var(--r); padding:13px 15px;
+  }
+  .alerta .ic{
+    width:32px; height:32px; border-radius:9px; background:var(--blood); color:#fff;
+    display:grid; place-items:center; flex-shrink:0; margin-top:1px;
+  }
+  .alerta .ic svg{width:19px; height:19px}
+  .alerta .tx{flex:1; min-width:0}
+  .alerta .tt{
+    font-family:"Archivo",sans-serif; font-weight:800; font-size:12px; letter-spacing:.09em;
+    text-transform:uppercase; color:var(--blood); margin-bottom:3px;
+  }
+  .alerta .ms{font-size:14.5px; color:#5E1A1D; line-height:1.5; white-space:pre-wrap; font-weight:500}
+
+  .mode-flag{
+    display:flex; align-items:center; gap:8px; font-size:12px; color:var(--warn);
+    background:var(--warn-tint); border:1px solid #F0DCA8; border-radius:10px; padding:9px 12px; margin:12px 0 2px;
+  }
+  .mode-flag svg{width:16px;height:16px;flex-shrink:0}
+  .divider{height:1px; background:var(--line); margin:18px 0}
+  .sec-label{font-family:"Archivo",sans-serif; font-weight:700; font-size:13px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin:2px 0 10px}
+</style>
+</head>
+<body>
+
+<!-- ====================== HEADER ====================== -->
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <div class="logo" id="logoBox">
+        <!-- Logo placeholder (reemplazable desde Ajustes) -->
+        <svg viewBox="0 0 48 48" fill="none"><path d="M24 6v36M6 24h36" stroke="#0F6E5C" stroke-width="6" stroke-linecap="round"/></svg>
+      </div>
+      <div class="titles">
+        <p class="eyebrow">Portafolio de pruebas</p>
+        <h1 class="brand" id="hName">Laboratorio Clínico</h1>
+        <div class="subbrand" id="hSub">Hospital Departamental San Rafael de Zarzal</div>
+      </div>
+      <button class="gear" id="gearBtn" aria-label="Configuración">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+
+    <!-- Reserva de sangre -->
+    <div class="blood">
+      <div class="blood-head">
+        <svg class="blood-drop" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5S5.5 10 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10 12 2.5 12 2.5z"/></svg>
+        <span class="blood-title">Reserva de sangre</span>
+        <button class="blood-edit" id="bloodEditBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Actualizar
+        </button>
+      </div>
+      <div class="blood-total" id="bloodTotal"></div>
+      <div class="blood-primary" id="bloodPrimary"></div>
+      <div class="blood-rest" id="bloodRest"></div>
+      <div class="blood-meta" id="bloodMeta"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ====================== BUSCADOR + LISTA ====================== -->
+<main class="wrap">
+  <div id="notaBox"></div>
+  <div id="modeFlag"></div>
+
+  <div class="search-wrap">
+    <div class="search" id="searchBox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="searchInput" type="search" placeholder="Buscar prueba, código CUPS…" autocomplete="off" enterkeyhint="search">
+      <button class="clear" id="clearBtn" aria-label="Limpiar">×</button>
+    </div>
+    <div class="filters" id="filters"></div>
+  </div>
+
+  <div class="count-line" id="countLine"></div>
+  <div class="list" id="list"></div>
+</main>
+
+<!-- ====================== MODALES ====================== -->
+<div class="scrim" id="scrim"></div>
+
+<!-- Detalle de prueba -->
+<div class="sheet" id="detailSheet" role="dialog" aria-modal="true"></div>
+
+<!-- Login -->
+<div class="sheet" id="loginSheet" role="dialog" aria-modal="true">
+  <div class="grab"></div>
+  <div class="sheet-body" style="padding-top:20px">
+    <div class="lock-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+    <div style="text-align:center; margin-bottom:16px">
+      <div class="sheet-title" style="padding:0">Acceso del laboratorio</div>
+      <div style="font-size:13px; color:var(--ink-soft); margin-top:5px" id="loginMsg">Ingresa la clave para actualizar información.</div>
+    </div>
+    <div class="form-row">
+      <input class="inp" id="pwInput" type="password" inputmode="text" placeholder="Clave" enterkeyhint="go" style="text-align:center; letter-spacing:.1em">
+    </div>
+    <button class="btn" id="pwBtn">Ingresar</button>
+    <button class="btn ghost" id="pwCancel" style="margin-top:9px">Cancelar</button>
+  </div>
+</div>
+
+<!-- Config / Admin -->
+<div class="sheet" id="cfgSheet" role="dialog" aria-modal="true">
+  <div class="grab"></div>
+  <div class="cfg-tabs">
+    <!-- Se generan según el nivel de acceso -->
+  </div>
+  <div class="sheet-head" style="padding-top:12px; position:relative; border:none">
+    <button class="x" id="cfgClose">×</button>
+    <div class="sheet-title" id="cfgTitle" style="font-size:17px">Administración</div>
+  </div>
+  <div class="sheet-body" id="cfgBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Invitación a instalar (se muestra sola cuando aplica) -->
+<div class="instalar" id="instalarBox" role="dialog" aria-live="polite">
+  <button class="cerrar" id="instalarNo2" aria-label="Cerrar">×</button>
+  <img src="icons/icon-192.png" alt="Portafolio Lab">
+  <div class="tx">
+    <div class="t1">Instalar Portafolio Lab</div>
+    <div class="t2" id="instalarTxt">Tenlo a un toque, sin abrir el navegador.</div>
+    <div class="acc" id="instalarAcc">
+      <button id="instalarSi">Instalar</button>
+      <button class="no" id="instalarNo">Ahora no</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase (opcional). Si no configuras, funciona en modo local. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+/* =====================================================================
+   PORTAFOLIO DE PRUEBAS · LABORATORIO CLÍNICO HDSR
+   Base v0.1 — Emanuel, esto es para enriquecer con tu listado real.
+
+   >>> Para poner ONLINE con Firebase, pega tu configuración aquí abajo.
+       Mientras esté vacío, la app funciona en MODO LOCAL (este dispositivo).
+===================================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyC8JcAz30cgM1uD6ImLquekNDbluhWGsjI",
+  authDomain: "portafolios-lab.firebaseapp.com",
+  projectId: "portafolios-lab",
+  storageBucket: "portafolios-lab.firebasestorage.app",
+  messagingSenderId: "805193266641",
+  appId: "1:805193266641:web:038d5bce5b4a24fcd65cf0"
+};
+
+const CLAVE_POR_DEFECTO = "LAB456";   // ADMINISTRADOR: todo (editar pruebas, ajustes, claves)
+const CLAVE_LAB_POR_DEFECTO = "LAB";  // LABORATORIO: indicaciones internas, hemocomponentes y avisos
+const GRUPOS = ["O+","O-","A+","A-","B+","B-","AB+","AB-"];
+const UMBRAL_BAJO = 3;                // <= 3 unidades => "bajo" (ámbar)
+
+/* ---------- Datos de ejemplo (reemplázalos con los reales) ----------
+   OJO: los códigos CUPS son de referencia; verifícalos con la resolución
+   vigente antes de publicar. Deja en blanco cualquier campo que no aplique
+   y NO se mostrará. */
+const SEMILLA = [];  // Los datos se cargan con importar.html a Firestore
+
+/* ====================== ESTADO ====================== */
+let USA_FIREBASE = !!firebaseConfig.projectId;
+let db = null;
+let pruebas = [];
+let sangre = { unidades:{}, actualizado:null, por:"" };
+let movimientos = [];
+let cfg = { clave:CLAVE_POR_DEFECTO, claveLab:CLAVE_LAB_POR_DEFECTO, logoUrl:"", notaImportante:"",
+  modoInicio:"todos", destacados:[],
+  tubos:[
+    {n:"Tapa lila (EDTA)",                         c:"#8E5BC7"},
+    {n:"Tapa amarilla (gel)",                      c:"#C79A16"},
+    {n:"Tapa azul (citrato)",                      c:"#2E6FC4"},
+    {n:"Tapa roja (sin aditivo)",                  c:"#C0392B"},
+    {n:"Tapa verde (heparina)",                    c:"#1E8A5A"},
+    {n:"Tapa gris (fluoruro)",                     c:"#6B7A82"},
+    {n:"Tubo sin gel separador",                   c:"#A0522D"},
+    {n:"Frasco estéril de rosca",                  c:"#B8860B"},
+    {n:"Frasco de orina de 24 horas",              c:"#0E7C86"},
+    {n:"Recolector plástico",                      c:"#7A6A55"},
+    {n:"Jeringa de gases",                         c:"#4A5568"},
+    {n:"Lámina portaobjetos",                      c:"#5B6B8C"},
+    {n:"Medio de transporte Stuart/Amies",         c:"#8A6FB0"},
+    {n:"Frasco para hemocultivo",                  c:"#1F7A8C"},
+    {n:"Kit de citología cervicovaginal",          c:"#B5548E"},
+    {n:"Medio de transporte viral",                c:"#7A4FBF"},
+    {n:"Frasco con formol (patología)",            c:"#6E7B3F"},
+    {n:"Hisopado nasofaríngeo",                    c:"#C2703D"},
+    {n:"Papel de filtro (FTA)",                    c:"#9C7A4F"},
+    {n:"Tubo especial (solicitar al laboratorio)", c:"#8C4B62"}
+  ],
+  laboratorios:["Laboratorios CIC"],
+  nombre:"Laboratorio Clínico", sub:"Hospital Departamental San Rafael de Zarzal",
+  servicios:["Urgencias","Urg Pediatría","Hospitalización","Hospi Pediatría","Gineco-Obstetricia","Cirugía","Consulta Externa"] };
+let serviciosEdit = [];
+let destacadosEdit = [];
+let tubosEdit = [];
+let labsEdit = [];
+let suspEdit = {};
+let modoInicioEdit = "todos";
+let nivel = null;   // null · "lab" · "admin"  (admin incluye todo lo de lab)
+function puede(min){ return nivel==="admin" || (min==="lab" && nivel==="lab"); }
+let filtroSeccion = "Todos";
+let termino = "";
+let accionTrasLogin = null;
+let editandoId = null;
+
+/* almacenamiento local seguro (envuelto en try/catch) */
+const store = {
+  get(k, def){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){ return def; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ====================== ARRANQUE ====================== */
+/* Ojo: init() se invoca al FINAL del script, cuando ya están
+   declaradas todas las constantes (GRUPOS_PPAL, DIAS, IC…). */
+async function init(){
+  GRUPOS.forEach(g => { if(sangre.unidades[g]===undefined) sangre.unidades[g]=0; });
+
+  if(USA_FIREBASE){
+    try{
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+      escucharFirebase();
+      flag("");
+    }catch(e){
+      console.error(e); USA_FIREBASE=false; cargarLocal();
+      flag("No se pudo conectar a Firebase. Trabajando en modo local.");
+    }
+  }else{
+    cargarLocal();
+    flag('Modo local — configura Firebase en el código para ver la info "en vivo" en todos los servicios.');
+  }
+  render();
+}
+
+function cargarLocal(){
+  pruebas = store.get("lab_pruebas", null) || SEMILLA.slice();
+  sangre  = store.get("lab_sangre", null) || sangre;
+  movimientos = store.get("lab_movimientos", []) || [];
+  cfg     = Object.assign(cfg, store.get("lab_cfg", {}));
+  migrarClaves();
+  GRUPOS.forEach(g => { if(sangre.unidades[g]===undefined) sangre.unidades[g]=0; });
+}
+// Ajusta datos guardados por versiones anteriores de la app
+function migrarClaves(){
+  if(!cfg.clave || cfg.clave === "lab123") cfg.clave = CLAVE_POR_DEFECTO;
+  if(!cfg.claveLab || cfg.claveLab === "lab456") cfg.claveLab = CLAVE_LAB_POR_DEFECTO;
+  // "Tapa amarilla (gel/SST)" pasó a llamarse "Tapa amarilla (gel)"
+  const VIEJO = "Tapa amarilla (gel/SST)", NUEVO = "Tapa amarilla (gel)";
+  if(Array.isArray(cfg.tubos)) cfg.tubos.forEach(t=>{ if(t.n === VIEJO) t.n = NUEVO; });
+  if(!USA_FIREBASE && Array.isArray(pruebas))
+    pruebas.forEach(p=>{ if(p.tubo === VIEJO) p.tubo = NUEVO; });
+}
+
+function guardarLocal(){
+  store.set("lab_pruebas", pruebas);
+  store.set("lab_sangre", sangre);
+  store.set("lab_movimientos", movimientos);
+  store.set("lab_cfg", cfg);
+}
+
+/* ---- Firebase en tiempo real ---- */
+function escucharFirebase(){
+  db.collection("pruebas").orderBy("nombre").onSnapshot(s=>{
+    pruebas = s.docs.map(d=>({id:d.id, ...d.data()}));
+    render();
+  }, err=>console.error(err));
+
+  db.collection("movimientos").orderBy("fecha","desc").limit(300).onSnapshot(s=>{
+    movimientos = s.docs.map(d=>({id:d.id, ...d.data()}));
+    if(cfgTab==="sangre") renderCfg();
+  }, err=>console.error(err));
+
+  db.collection("config").doc("sangre").onSnapshot(d=>{
+    if(d.exists){ const x=d.data(); sangre.unidades=x.unidades||{}; sangre.actualizado=x.actualizado||null; sangre.por=x.por||""; }
+    GRUPOS.forEach(g=>{ if(sangre.unidades[g]===undefined) sangre.unidades[g]=0; });
+    renderSangre();
+  });
+
+  db.collection("config").doc("general").onSnapshot(d=>{
+    if(d.exists) cfg = Object.assign(cfg, d.data());
+    migrarClaves();
+    aplicarCfg();
+  });
+}
+async function sembrarFirebase(){
+  const batch = db.batch();
+  SEMILLA.forEach(p=>{ const {id,...data}=p; batch.set(db.collection("pruebas").doc(id), data); });
+  await batch.commit();
+}
+
+function flag(msg){
+  const el = document.getElementById("modeFlag");
+  if(!msg){ el.innerHTML=""; return; }
+  el.innerHTML = `<div class="mode-flag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span>${esc(msg)}</span></div>`;
+}
+
+/* ====================== RENDER ====================== */
+function render(){ aplicarCfg(); renderSangre(); renderFiltros(); renderLista(); }
+
+function aplicarCfg(){
+  document.getElementById("hName").textContent = cfg.nombre || "Laboratorio Clínico";
+  document.getElementById("hSub").textContent  = cfg.sub || "";
+  const box = document.getElementById("logoBox");
+  if(cfg.logoUrl){ box.innerHTML = `<img src="${esc(cfg.logoUrl)}" alt="Logo" onerror="this.parentNode.innerHTML='<svg viewBox=\\'0 0 48 48\\' fill=\\'none\\'><path d=\\'M24 6v36M6 24h36\\' stroke=\\'%230F6E5C\\' stroke-width=\\'6\\' stroke-linecap=\\'round\\'/></svg>'">`; }
+  renderNota();
+}
+
+// Aviso importante: solo se dibuja si hay texto
+function renderNota(){
+  const cont = document.getElementById("notaBox");
+  if(!cont) return;
+  const txt = (cfg.notaImportante || "").trim();
+  if(!txt){ cont.innerHTML = ""; return; }
+  cont.innerHTML = `<div class="alerta" role="alert">
+    <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+    <div class="tx"><div class="tt">Importante</div><div class="ms">${esc(txt)}</div></div>
+  </div>`;
+}
+
+const GRUPOS_PPAL = ["O+","O-"];
+const ETIQUETA_GRUPO = {"O+":"O Positivo", "O-":"O Negativo"};
+function etiquetaGrupo(g){ return ETIQUETA_GRUPO[g] || g; }
+const GRUPOS_RESTO = ["A+","A-","B+","B-","AB+","AB-"];
+function estadoSangre(n){ if(n<=0) return "none"; if(n<=UMBRAL_BAJO) return "low"; return "ok"; }
+
+function renderSangre(){
+  const total = GRUPOS.reduce((a,g)=>a+(sangre.unidades[g]||0),0);
+  document.getElementById("bloodTotal").innerHTML =
+    `<span class="num">${total}</span><span class="lbl">${total===1?'unidad disponible':'unidades disponibles'} en total</span>`;
+
+  document.getElementById("bloodPrimary").innerHTML = GRUPOS_PPAL.map(g=>{
+    const n = sangre.unidades[g]||0;
+    return `<div class="bg-big" data-st="${estadoSangre(n)}">
+      <div class="bg-type">${etiquetaGrupo(g)}</div><div class="bg-count">${n}</div>
+      <div class="bg-unit">${n===1?'unidad':'unidades'}</div></div>`;
+  }).join("");
+
+  document.getElementById("bloodRest").innerHTML = GRUPOS_RESTO.map(g=>{
+    const n = sangre.unidades[g]||0;
+    return `<div class="bg-sm" data-st="${estadoSangre(n)}">
+      <div class="bg-type">${g}</div><div class="bg-count">${n}</div></div>`;
+  }).join("");
+
+  let t = sangre.actualizado
+    ? (()=>{ const f=new Date(sangre.actualizado);
+        let s=`Actualizado ${f.toLocaleDateString('es-CO',{day:'2-digit',month:'short'})} · ${f.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}`;
+        if(sangre.por) s+=` · ${esc(sangre.por)}`; return s; })()
+    : "Sin actualizar todavía";
+  document.getElementById("bloodMeta").innerHTML = `<span>${t}</span>`;
+}
+
+function secciones(){ return ["Todos", ...Array.from(new Set(pruebas.map(p=>p.seccion).filter(Boolean))).sort()]; }
+function renderFiltros(){
+  const cont = document.getElementById("filters");
+  cont.innerHTML = secciones().map(s=>`<button class="chip ${s===filtroSeccion?'active':''}" data-sec="${esc(s)}">${esc(s)}</button>`).join("");
+}
+
+// Normaliza: quita tildes/diacríticos y pasa a minúscula
+function normalizar(s){
+  return String(s==null?"":s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+}
+function filtradas(){
+  const q = normalizar(termino.trim());
+  return pruebas.filter(p=>{
+    if(filtroSeccion!=="Todos" && p.seccion!==filtroSeccion) return false;
+    if(!q) return true;
+    return normalizar([p.nombre,p.cups,p.sinonimos,p.seccion].filter(Boolean).join(" ")).includes(q);
+  }).sort((a,b)=>(a.nombre||"").localeCompare(b.nombre||""));
+}
+
+function renderLista(){
+  const list = document.getElementById("list");
+  let res = filtradas();
+
+  // ¿Vista inicial reducida a las pruebas destacadas?
+  const vistaInicial = !termino.trim() && filtroSeccion==="Todos";
+  const modoDestacados = (cfg.modoInicio === "destacados");
+  const destacadosOn = vistaInicial && modoDestacados;
+  const total = pruebas.length;
+  if(destacadosOn){
+    const ids = cfg.destacados || [];
+    res = res.filter(p=>ids.includes(p.id));
+  }
+
+  const cl = document.getElementById("countLine");
+  if(destacadosOn){
+    cl.innerHTML = res.length
+      ? `${res.length} ${res.length===1?"prueba destacada":"pruebas destacadas"} · <span style="color:var(--ink-soft)">busca por nombre o CUPS para ver las ${total} pruebas</span>`
+      : `<span style="color:var(--ink-soft)">Busca por nombre o código CUPS entre las ${total} pruebas del portafolio.</span>`;
+  }else{
+    cl.textContent = res.length + (res.length===1?" prueba":" pruebas") + (termino?` para "${termino}"`:"");
+  }
+
+  if(res.length===0 && destacadosOn){
+    list.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <h3>Busca una prueba</h3>
+      <p>Escribe el nombre o el código CUPS en el buscador.</p></div>`;
+    return;
+  }
+  if(res.length===0){
+    list.innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <h3>Sin resultados</h3>
+      <p>No encontramos pruebas para esa búsqueda.</p></div>`;
+    return;
+  }
+  list.innerHTML = res.map(p=>{
+    let badges = "";
+    if(p.seccion) badges += `<span class="badge b-sec">${esc(p.seccion)}</span>`;
+    badges += p.remite
+      ? `<span class="badge b-ref"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Se remite</span>`
+      : `<span class="badge b-here"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>Se procesa aquí</span>`;
+    const cons = p.conservacion || (p.refrigeracion ? "refrigeracion" : "ambiente");
+    if(cons==="refrigeracion") badges += `<span class="badge b-cold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M4 7l16 10M20 7 4 17"/></svg>Refrigerar</span>`;
+    else if(cons==="congelacion") badges += `<span class="badge b-freeze"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M4 7l16 10M20 7 4 17M2 12h20"/></svg>Congelar</span>`;
+    if(p.soloExclusivo && p.servicios && p.servicios.length) badges += `<span class="badge b-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Servicios limitados</span>`;
+    if(Array.isArray(p.diasProceso) && p.diasProceso.length && p.diasProceso.length<7)
+      badges += `<span class="badge b-days"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${DIAS.filter(d=>p.diasProceso.includes(d.k)).map(d=>d.n).join(" · ")}</span>`;
+    if(p.tiempoResultado) badges += `<span class="badge b-time">⏱ ${esc(p.tiempoResultado)}</span>`;
+
+    if(p.suspendida) badges = `<span class="badge b-susp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>No disponible</span>` + badges;
+    return `<button class="test ${p.suspendida?'susp':''}" data-id="${p.id}">
+      <div class="test-top">
+        <div class="test-name">${esc(p.nombre)}</div>
+        ${p.cups?`<span class="cups">${esc(p.cups)}</span>`:""}
+      </div>
+      <div class="test-badges">${badges}</div>
+    </button>`;
+  }).join("");
+}
+
+/* ====================== DETALLE ====================== */
+function fila(icono, label, valor, clase=""){
+  if(!valor) return "";
+  return `<div class="field">
+    <div class="field-ic ${clase}">${icono}</div>
+    <div class="field-body">
+      <div class="field-label">${label}</div>
+      <div class="field-val">${valor}</div>
+    </div>
+  </div>`;
+}
+const IC = {
+  cups:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h2M7 12h2M7 16h2M13 8h4M13 12h4M13 16h4"/></svg>`,
+  tubo:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 2h6M10 2v14a2 2 0 0 0 4 0V2"/><path d="M10 9h4"/></svg>`,
+  transporte:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  resultado:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+  donde:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  disp:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>`,
+  prep:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 11H5a2 2 0 0 0-2 2v7h18v-7a2 2 0 0 0-2-2h-4M9 11V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v7"/></svg>`,
+  reject:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg>`,
+  nota:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>`,
+  lab:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6.5L5 18a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-8.5V3"/><path d="M7.5 14h9"/></svg>`
+};
+
+// Días de la semana para pruebas que se corren por lotes
+const DIAS = [
+  {k:"LU", n:"Lunes"}, {k:"MA", n:"Martes"}, {k:"MI", n:"Miércoles"},
+  {k:"JU", n:"Jueves"}, {k:"VI", n:"Viernes"}, {k:"SA", n:"Sábado"}, {k:"DO", n:"Domingo"}
+];
+function nombresDias(keys){
+  const ns = DIAS.filter(d=>keys.includes(d.k)).map(d=>d.n);
+  if(ns.length===1) return ns[0];
+  if(ns.length===2) return ns[0]+" y "+ns[1];
+  return ns.slice(0,-1).join(", ")+" y "+ns[ns.length-1];
+}
+
+// Indicaciones internas del laboratorio: requieren la clave del lab
+function bloqueLab(p){
+  if(!p.indicacionesLab) return "";
+  const candado = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+  const matraz = IC.lab;
+  if(puede("lab")){
+    return `<div class="lab-block">
+      <div class="lab-head"><div class="ic">${matraz}</div>
+        <div class="tx"><div class="lab-title">Indicaciones dentro del laboratorio</div>
+          <div class="lab-sub">Uso interno del personal de laboratorio</div></div></div>
+      <div class="lab-open">${esc(p.indicacionesLab)}</div>
+    </div>`;
+  }
+  return `<div class="lab-block">
+    <div class="lab-head"><div class="ic">${candado}</div>
+      <div class="tx"><div class="lab-title">Indicaciones dentro del laboratorio</div>
+        <div class="lab-sub">Contenido restringido al personal del laboratorio</div></div></div>
+    <button class="lab-btn" onclick="desbloquearLab('${p.id}')">${candado} Ver indicaciones</button>
+  </div>`;
+}
+function desbloquearLab(id){
+  pedirClave(()=>{ verDetalle(id); }, "Clave del laboratorio para ver las indicaciones internas.", "lab");
+}
+
+// Bloque visual de días de procesamiento
+function bloqueDias(p){
+  const dias = Array.isArray(p.diasProceso) ? p.diasProceso.filter(Boolean) : [];
+  if(!dias.length) return "";
+  const soloUno = dias.length===1;
+  const titulo = `Se procesa ${soloUno?'solo los':'los'} ${nombresDias(dias)}`;
+  const tiempo = p.tiempoResultado || p.tiempoTrasProceso || "";
+  const after = tiempo
+    ? `<div class="days-after">Resultado disponible <b>${esc(tiempo)}</b> después del día de procesamiento.</div>`
+    : "";
+  return `<div class="days-block">
+    <div class="days-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${esc(titulo)}</div>${after}
+  </div>`;
+}
+
+// Bloque visual de servicios donde se realiza el examen
+function bloqueServicios(p){
+  const servs = Array.isArray(p.servicios) ? p.servicios.filter(Boolean) : [];
+  if(!servs.length){
+    // compatibilidad con dato antiguo de texto libre
+    return p.disponibilidad ? fila(IC.disp, "Disponibilidad", esc(p.disponibilidad)) : "";
+  }
+  const excl = !!p.soloExclusivo;
+  const chips = servs.map(s=>`<span class="svc-chip">${esc(s)}</span>`).join("");
+  const icon = excl
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+    : IC.disp;
+  const titulo = excl ? "Solo se realiza en estos servicios" : "Disponible en los servicios";
+  const nota = excl ? `<div class="svc-note">No se realiza en otros servicios.</div>` : "";
+  return `<div class="svc-block ${excl?'excl':''}">
+    <div class="svc-head">${icon}${titulo}</div>
+    <div class="svc-chips">${chips}</div>${nota}
+  </div>`;
+}
+
+function verDetalle(id){
+  const p = pruebas.find(x=>x.id===id); if(!p) return;
+  const sheet = document.getElementById("detailSheet");
+
+  let sub = "";
+  if(p.seccion) sub += `<span class="badge b-sec">${esc(p.seccion)}</span>`;
+  sub += p.remite
+    ? `<span class="badge b-ref">Se remite</span>`
+    : `<span class="badge b-here">Se procesa aquí</span>`;
+
+  let rechazoHtml = "";
+  if(p.rechazo){
+    const items = p.rechazo.split(/;|\n/).map(s=>s.trim()).filter(Boolean);
+    rechazoHtml = `<div class="field"><div class="field-ic reject">${IC.reject}</div>
+      <div class="field-body"><div class="field-label">Causas de rechazo de la muestra</div>
+      <ul class="reject-list">${items.map(i=>`<li>${esc(i)}</li>`).join("")}</ul></div></div>`;
+  }
+
+  const donde = p.remite ? (p.laboratorioRef || "Se remite a laboratorio de referencia") : "Se procesa en el laboratorio HDSR";
+
+  // Conservación (compatibilidad con dato viejo refrigeracion)
+  const cons = p.conservacion || (p.refrigeracion ? "refrigeracion" : "ambiente");
+  const consIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M4 7l16 10M20 7 4 17"/></svg>`;
+  let consFila = "";
+  if(cons==="refrigeracion") consFila = fila(consIcon, "Conservación", "Requiere refrigeración (2–8 °C)", "cold");
+  else if(cons==="congelacion") consFila = fila(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M4 7l16 10M20 7 4 17M2 12h20"/></svg>`, "Conservación", "Requiere congelación (≤ −18 °C)", "cold");
+
+  sheet.innerHTML = `
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <button class="x" onclick="cerrar()">×</button>
+      <div class="sheet-title">${esc(p.nombre)}</div>
+      <div class="sheet-sub">${sub}</div>
+    </div>
+    <div class="sheet-body">
+      ${p.suspendida?`<div class="susp-block">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></div>
+        <div><div class="tt">No disponible</div>
+        <div class="ms">${esc(p.motivoSuspension || "Esta prueba no se está procesando temporalmente. Consulta con el laboratorio antes de tomar la muestra.")}</div></div>
+      </div>`:""}
+      ${p.cups?`<div class="field"><div class="field-ic">${IC.cups}</div><div class="field-body"><div class="field-label">Código CUPS</div><div class="field-val mono">${esc(p.cups)}</div></div></div>`:""}
+      ${fila(IC.tubo, "Tubo / recipiente", p.tubo
+          ? `<span class="tubo-val">${p.tuboColor?`<span class="tubo-dot" style="background:${esc(p.tuboColor)}"></span>`:""}<span class="tubo-nom" ${p.tuboColor?`style="color:${esc(p.tuboColor)}"`:""}>${esc(p.tubo)}</span></span>`
+            + (p.volumen?` · <span style="color:var(--ink-soft)">${esc(p.volumen)}</span>`:"")
+          : "")}
+      ${consFila}
+      ${fila(IC.transporte, "Transporte / tiempo de llegada", esc(p.transporte||""))}
+      ${(Array.isArray(p.diasProceso) && p.diasProceso.length) ? "" : fila(IC.resultado, "Tiempo de entrega de resultados", esc(p.tiempoResultado||""))}
+      ${bloqueDias(p)}
+      ${fila(p.remite?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`:IC.donde, "Dónde se procesa", esc(donde), p.remite?"warm":"")}
+      ${bloqueServicios(p)}
+      ${fila(IC.prep, "Condiciones / preparación del paciente", esc(p.preparacion||""))}
+      ${fila(IC.nota, "Observaciones", esc(p.notas||""))}
+      ${rechazoHtml}
+      ${bloqueLab(p)}
+    </div>`;
+  abrir(sheet);
+}
+
+/* ====================== CONFIG / ADMIN ====================== */
+let cfgTab = "sangre";
+function pestanasDisponibles(){
+  return nivel==="admin" ? ["pruebas","sangre","ajustes"] : ["sangre"];
+}
+function renderPestanas(){
+  const nom = {pruebas:"Pruebas", sangre:"Sangre y avisos", ajustes:"Ajustes"};
+  const tabs = pestanasDisponibles();
+  const cont = document.querySelector(".cfg-tabs");
+  cont.style.display = tabs.length>1 ? "flex" : "none";
+  cont.innerHTML = tabs.map(t=>`<button class="cfg-tab ${t===cfgTab?'active':''}" data-tab="${t}">${nom[t]}</button>`).join("");
+  cont.querySelectorAll(".cfg-tab").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+      cfgTab = tab.dataset.tab; editandoId = null;
+      renderPestanas(); document.getElementById("cfgBody").scrollTop = 0; renderCfg();
+    });
+  });
+}
+function abrirConfig(tab){
+  const tabs = pestanasDisponibles();
+  cfgTab = (tab && tabs.includes(tab)) ? tab : tabs[0];
+  renderPestanas();
+  renderCfg();
+  abrir(document.getElementById("cfgSheet"));
+}
+function renderCfg(){
+  document.getElementById("cfgTitle").textContent =
+    cfgTab==="pruebas"?"Pruebas del portafolio": cfgTab==="sangre"?"Reserva de sangre":"Ajustes generales";
+  const b = document.getElementById("cfgBody");
+  if(cfgTab==="pruebas"){ b.innerHTML = viewPruebas(); renderAdmLista(); }
+  else if(cfgTab==="sangre") b.innerHTML = viewSangre();
+  else { b.innerHTML = viewAjustes(); renderServiciosBox(); renderDestacadosBox(); renderTubosBox(); renderLabsBox(); renderDispBox(); }
+}
+
+/* --- Pestaña Pruebas --- */
+let admBusqueda = "", admSeccion = "Todas", admProceso = "todos";
+
+function viewPruebas(){
+  return `<button class="btn" onclick="editarPrueba(null)" style="margin:6px 0 13px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Nueva prueba</button>
+
+    <div class="search" style="margin-bottom:10px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="admBuscar" type="search" placeholder="Buscar por nombre o CUPS…" value="${esc(admBusqueda)}"
+             autocomplete="off" oninput="admBusqueda=this.value; renderAdmLista()">
+    </div>
+
+    <div class="form-two" style="gap:8px; margin-bottom:6px">
+      <select class="sel" id="admSeccion" onchange="admSeccion=this.value; renderAdmLista()">
+        <option value="Todas">Todas las secciones</option>
+        ${secciones().filter(x=>x!=="Todos").map(x=>`<option value="${esc(x)}" ${admSeccion===x?'selected':''}>${esc(x)}</option>`).join("")}
+      </select>
+      <select class="sel" id="admProceso" onchange="admProceso=this.value; renderAdmLista()">
+        <option value="todos" ${admProceso==='todos'?'selected':''}>Aquí y remitidas</option>
+        <option value="aqui" ${admProceso==='aqui'?'selected':''}>Solo se procesan aquí</option>
+        <option value="remite" ${admProceso==='remite'?'selected':''}>Solo remitidas</option>
+        <option value="dias" ${admProceso==='dias'?'selected':''}>Con días fijos</option>
+        <option value="sinCups" ${admProceso==='sinCups'?'selected':''}>Sin código CUPS</option>
+      </select>
+    </div>
+
+    <div id="admCount" class="hint" style="margin:0 0 8px"></div>
+    <div id="admLista"></div>`;
+}
+
+function admFiltradas(){
+  const q = normalizar(admBusqueda.trim());
+  return pruebas.slice()
+    .sort((a,b)=>(a.nombre||"").localeCompare(b.nombre||""))
+    .filter(p=>{
+      if(admSeccion!=="Todas" && p.seccion!==admSeccion) return false;
+      if(admProceso==="aqui"    && p.remite) return false;
+      if(admProceso==="remite"  && !p.remite) return false;
+      if(admProceso==="dias"    && !(Array.isArray(p.diasProceso) && p.diasProceso.length)) return false;
+      if(admProceso==="sinCups" && (p.cups||"").trim()) return false;
+      if(!q) return true;
+      return normalizar([p.nombre,p.cups,p.sinonimos,p.seccion].filter(Boolean).join(" ")).includes(q);
+    });
+}
+
+function renderAdmLista(){
+  const cont = document.getElementById("admLista");
+  if(!cont) return;
+  const res = admFiltradas();
+  const c = document.getElementById("admCount");
+  if(c) c.textContent = `${res.length} de ${pruebas.length} ${pruebas.length===1?"prueba":"pruebas"}`;
+  cont.innerHTML = res.length ? res.map(p=>`
+    <div class="adm-item">
+      <div class="an"><div class="adm-name">${esc(p.nombre)}</div>
+        <div class="adm-code">${esc(p.cups||"sin CUPS")} · ${esc(p.seccion||"—")}${p.remite?" · remitida":""}</div></div>
+      <button class="icon-btn" onclick="editarPrueba('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+      <button class="icon-btn del" onclick="borrarPrueba('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+    </div>`).join("")
+    : '<p style="color:var(--ink-faint);text-align:center;padding:22px;font-size:13px">Ninguna prueba coincide con el filtro.</p>';
+}
+
+function editarPrueba(id){
+  editandoId = id;
+  const p = id ? pruebas.find(x=>x.id===id) : {};
+  const v = (k)=>esc(p[k]||"");
+  const cons = p.conservacion || (p.refrigeracion ? "refrigeracion" : "ambiente");
+  const diasSel = Array.isArray(p.diasProceso) ? p.diasProceso : [];
+  const tuboEsOtro = !!(p.tubo && !(cfg.tubos||[]).some(t=>t.n===p.tubo));
+  const listaServ = cfg.servicios || [];
+  const marcados = Array.isArray(p.servicios) ? p.servicios : [];
+  const tick = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+  const picker = listaServ.length
+    ? `<div class="svc-picker" id="svcPicker">${listaServ.map(s=>`
+        <div class="svc-opt ${marcados.includes(s)?'on':''}" data-svc="${esc(s)}" onclick="this.classList.toggle('on')">
+          <span class="tick">${tick}</span>${esc(s)}</div>`).join("")}</div>
+       <div class="switch" style="margin-top:10px"><span>Solo se realiza en los servicios marcados</span>
+         <div class="toggle ${p.soloExclusivo?'on':''}" id="f_exclusivo" onclick="this.classList.toggle('on')"></div></div>
+       <div class="hint" style="margin-top:-4px">Si lo activas, el detalle avisa que el examen <b>solo</b> se hace en esos servicios.</div>`
+    : `<div class="hint">Aún no hay servicios. Créalos primero en <b>Ajustes → Servicios</b> y vuelve a editar la prueba.</div>`;
+
+  document.getElementById("cfgTitle").textContent = id?"Editar prueba":"Nueva prueba";
+  document.getElementById("cfgBody").innerHTML = `
+    <div class="form-row"><label>Nombre de la prueba *</label><input class="inp" id="f_nombre" value="${v('nombre')}" placeholder="Ej. Hemograma IV"></div>
+    <div class="form-two">
+      <div class="form-row"><label>Código CUPS</label><input class="inp mono" id="f_cups" value="${v('cups')}" placeholder="902210"></div>
+      <div class="form-row"><label>Sección / área</label><input class="inp" id="f_seccion" list="secList" value="${v('seccion')}" placeholder="Hematología">
+        <datalist id="secList">${secciones().filter(s=>s!=="Todos").map(s=>`<option value="${esc(s)}">`).join("")}</datalist></div>
+    </div>
+    <div class="form-row"><label>Sinónimos (para el buscador)</label><input class="inp" id="f_sinonimos" value="${v('sinonimos')}" placeholder="cuadro hematico, cbc"><div class="hint">Palabras alternas separadas por espacio o coma.</div></div>
+    <div class="form-row"><label>Tubo / recipiente</label>
+      <select class="sel" id="f_tuboPreset" onchange="cambiarTuboPreset()">
+        <option value="">— Sin especificar —</option>
+        ${(cfg.tubos||[]).map(t=>`<option value="${esc(t.n)}" data-c="${esc(t.c)}" ${p.tubo===t.n?'selected':''}>${esc(t.n)}</option>`).join("")}
+        <option value="__otro__" ${tuboEsOtro?'selected':''}>➕ Otro (solo para este examen)</option>
+      </select>
+      <div class="hint">La lista se administra en <b>Ajustes → Tubos y recipientes</b>.</div></div>
+    <div class="form-row" id="tuboOtroBox" style="display:${tuboEsOtro?'block':'none'}">
+      <label>Nombre y color del recipiente</label>
+      <div class="color-field">
+        <input type="color" id="f_tuboColor" value="${esc(p.tuboColor||'#8E5BC7')}">
+        <input class="inp" id="f_tuboOtro" value="${tuboEsOtro?esc(p.tubo||''):''}" placeholder="Ej. Tubo especial para metales">
+      </div>
+      <div class="hint">Este recipiente queda solo en esta prueba; no se agrega a la lista general.</div></div>
+    <div class="form-row"><label>Volumen</label><input class="inp" id="f_volumen" value="${v('volumen')}" placeholder="3 mL"></div>
+    <div class="form-row"><label>Conservación de la muestra</label>
+      <select class="sel" id="f_conservacion">
+        <option value="ambiente" ${cons==='ambiente'?'selected':''}>Temperatura ambiente</option>
+        <option value="refrigeracion" ${cons==='refrigeracion'?'selected':''}>Refrigerada (2–8 °C)</option>
+        <option value="congelacion" ${cons==='congelacion'?'selected':''}>Congelada (≤ −18 °C)</option>
+      </select><div class="hint">Si eliges ambiente, no se muestra ningún aviso de frío.</div></div>
+    <div class="form-row"><label>Transporte / tiempo de llegada</label><input class="inp" id="f_transporte" value="${v('transporte')}" placeholder="Procesar antes de 2 h"></div>
+    <div class="form-row"><label>Días de procesamiento <span style="font-weight:400;color:var(--ink-faint)">(opcional)</span></label>
+      <div class="day-picker" id="dayPicker">${DIAS.map(d=>`<div class="day-pick ${diasSel.includes(d.k)?'on':''}" data-dia="${d.k}" onclick="this.classList.toggle('on');actualizarPistaTiempo()">${d.n}</div>`).join("")}</div>
+      <div class="hint">Si no marcas ningún día, se entiende que la prueba se procesa todos los días.</div></div>
+    <div class="form-row"><label id="lblTiempo">Tiempo de entrega de resultados</label>
+      <input class="inp" id="f_tiempoResultado" value="${esc(p.tiempoResultado || p.tiempoTrasProceso || '')}" placeholder="2 horas / 24–48 horas">
+      <div class="hint" id="hintTiempo"></div></div>
+    <div class="switch"><span>Se remite a otro laboratorio</span><div class="toggle ${p.remite?'on':''}" id="f_remite" onclick="this.classList.toggle('on');document.getElementById('refBox').style.display=this.classList.contains('on')?'block':'none'"></div></div>
+    <div class="form-row" id="refBox" style="display:${p.remite?'block':'none'}"><label>Laboratorio de referencia</label>
+      <select class="sel" id="f_laboratorioRef">
+        <option value="">— Sin especificar —</option>
+        ${(cfg.laboratorios||[]).map(L=>`<option value="${esc(L)}" ${p.laboratorioRef===L?'selected':''}>${esc(L)}</option>`).join("")}
+      </select>
+      <div class="hint">La lista se administra en <b>Ajustes → Laboratorios de referencia</b>.</div></div>
+    <div class="form-row"><label>Servicios donde se realiza</label>${picker}</div>
+    <div class="form-row"><label>Condiciones / preparación del paciente</label><textarea class="txt" id="f_preparacion" placeholder="Ayuno de 8 h…">${v('preparacion')}</textarea></div>
+    <div class="form-row"><label>Indicaciones dentro del laboratorio <span style="font-weight:400;color:var(--ink-faint)">(opcional)</span></label><textarea class="txt" id="f_indicacionesLab" placeholder="Procedimiento interno, manejo de la muestra…">${v('indicacionesLab')}</textarea><div class="hint">🔒 Solo visibles con la <b>clave del laboratorio</b>; los demás servicios no las ven.</div></div>
+    <div class="form-row"><label>Causas de rechazo de muestra</label><textarea class="txt" id="f_rechazo" placeholder="Separa cada causa con punto y coma ;">${v('rechazo')}</textarea><div class="hint">Cada causa separada por “;” se muestra como lista.</div></div>
+    <div class="form-row"><label>Observaciones</label><textarea class="txt" id="f_notas">${v('notas')}</textarea></div>
+    <div class="switch"><span>Suspendida temporalmente</span><div class="toggle ${p.suspendida?'on':''}" id="f_suspendida" onclick="this.classList.toggle('on');document.getElementById('suspBox').style.display=this.classList.contains('on')?'block':'none'"></div></div>
+    <div class="form-row" id="suspBox" style="display:${p.suspendida?'block':'none'}">
+      <label>Motivo (opcional)</label>
+      <input class="inp" id="f_motivoSuspension" value="${v('motivoSuspension')}" placeholder="Ej. Sin contrato vigente con el laboratorio">
+      <div class="hint">Los servicios verán un aviso de que la prueba no se está procesando.</div></div>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="cfgTab='pruebas';renderCfg()">Volver</button>
+      <button class="btn" onclick="guardarPrueba()">Guardar</button>
+    </div>
+    <div class="hint" style="text-align:center;margin-top:12px">Los campos en blanco no se muestran en el detalle.</div>`;
+  actualizarPistaTiempo();
+}
+
+// Muestra u oculta el campo de recipiente personalizado
+function cambiarTuboPreset(){
+  const sel = document.getElementById("f_tuboPreset");
+  const box = document.getElementById("tuboOtroBox");
+  if(!sel || !box) return;
+  box.style.display = sel.value === "__otro__" ? "block" : "none";
+}
+
+// La etiqueta del tiempo cambia según haya o no días marcados
+function actualizarPistaTiempo(){
+  const lbl = document.getElementById("lblTiempo");
+  const hint = document.getElementById("hintTiempo");
+  const picker = document.getElementById("dayPicker");
+  if(!lbl || !hint || !picker) return;
+  const sel = Array.from(picker.querySelectorAll(".day-pick.on")).map(e=>e.dataset.dia);
+  if(sel.length){
+    lbl.textContent = "Tiempo de resultados después del día de proceso";
+    hint.innerHTML = `Se mostrará: “Resultado disponible <b>…</b> después del día de procesamiento (${nombresDias(sel)}).”`;
+  }else{
+    lbl.textContent = "Tiempo de entrega de resultados";
+    hint.textContent = "Se procesa todos los días; el tiempo se cuenta desde que llega la muestra.";
+  }
+}
+
+// Devuelve el recipiente elegido (de la lista o personalizado)
+function tuboElegido(){
+  const sel = document.getElementById("f_tuboPreset");
+  if(!sel || !sel.value) return {nombre:"", color:""};
+  if(sel.value === "__otro__"){
+    const n = (document.getElementById("f_tuboOtro")||{}).value || "";
+    const c = (document.getElementById("f_tuboColor")||{}).value || "";
+    return {nombre:n.trim(), color:n.trim()?c:""};
+  }
+  const opt = sel.options[sel.selectedIndex];
+  return {nombre:sel.value, color:(opt && opt.dataset.c) || ""};
+}
+
+async function guardarPrueba(){
+  const g = (k)=>{ const e=document.getElementById("f_"+k); return e?e.value.trim():""; };
+  const nombre = g("nombre");
+  if(!nombre){ toast("El nombre es obligatorio", true); return; }
+  const data = {
+    nombre, cups:g("cups"), seccion:g("seccion"), sinonimos:g("sinonimos"),
+    tubo:tuboElegido().nombre, tuboColor:tuboElegido().color, volumen:g("volumen"),
+    conservacion:(document.getElementById("f_conservacion")||{}).value || "ambiente",
+    transporte:g("transporte"), tiempoResultado:g("tiempoResultado"),
+    diasProceso:Array.from(document.querySelectorAll("#dayPicker .day-pick.on")).map(e=>e.dataset.dia),
+    remite:document.getElementById("f_remite").classList.contains("on"),
+    laboratorioRef:g("laboratorioRef"),
+    servicios:Array.from(document.querySelectorAll("#svcPicker .svc-opt.on")).map(e=>e.dataset.svc),
+    soloExclusivo:!!(document.getElementById("f_exclusivo") && document.getElementById("f_exclusivo").classList.contains("on")),
+    preparacion:g("preparacion"), indicacionesLab:g("indicacionesLab"),
+    rechazo:g("rechazo"), notas:g("notas"),
+    suspendida:document.getElementById("f_suspendida").classList.contains("on"),
+    motivoSuspension:g("motivoSuspension")
+  };
+  if(USA_FIREBASE){
+    try{
+      if(editandoId) await db.collection("pruebas").doc(editandoId).set(data);
+      else await db.collection("pruebas").add(data);
+    }catch(e){ toast("Error al guardar", true); return; }
+  }else{
+    if(editandoId){ const i=pruebas.findIndex(x=>x.id===editandoId); pruebas[i]={id:editandoId,...data}; }
+    else pruebas.push({id:"loc"+Date.now(),...data});
+    guardarLocal(); render();
+  }
+  toast(editandoId?"Prueba actualizada":"Prueba agregada");
+  cfgTab="pruebas"; renderCfg();
+}
+
+async function borrarPrueba(id){
+  const p = pruebas.find(x=>x.id===id);
+  if(!confirm(`¿Eliminar "${p?p.nombre:''}" del portafolio?`)) return;
+  if(USA_FIREBASE){ try{ await db.collection("pruebas").doc(id).delete(); }catch(e){ toast("Error al eliminar", true); return; } }
+  else{ pruebas = pruebas.filter(x=>x.id!==id); guardarLocal(); render(); }
+  toast("Prueba eliminada"); renderCfg();
+}
+
+/* --- Pestaña Sangre --- */
+function viewSangre(){
+  return `<p style="font-size:13px;color:var(--ink-soft);margin:2px 0 14px">Ajusta las unidades disponibles por grupo. Los servicios lo ven al instante.</p>
+    <div class="be-grid">
+      ${GRUPOS.map(g=>`<div class="be-item"><span class="be-type">${etiquetaGrupo(g)}</span>
+        <div class="stepper">
+          <button onclick="stepSangre('${g}',-1)">−</button>
+          <input id="be_${g}" type="number" inputmode="numeric" min="0" value="${sangre.unidades[g]||0}">
+          <button onclick="stepSangre('${g}',1)">+</button>
+        </div></div>`).join("")}
+    </div>
+    <div class="form-row" style="margin-top:16px"><label>Actualizado por (opcional)</label><input class="inp" id="be_por" value="${esc(sangre.por||'')}" placeholder="Iniciales o nombre"></div>
+    <button class="btn" onclick="guardarSangre()" style="margin-top:4px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+      Guardar reserva</button>
+    <div class="divider"></div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px">
+      <div class="sec-label" style="margin:0">Historial de movimientos</div>
+      ${movimientos.length?`<button class="icon-btn del" onclick="borrarTodosMovimientos()" title="Vaciar historial"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>`:""}
+    </div>
+    <p style="font-size:11.5px;color:var(--ink-faint);margin:0 0 10px">Eliminar un movimiento solo lo quita del registro; las unidades actuales no cambian.</p>
+    ${viewMovimientos()}
+    <div class="divider"></div>
+    <div class="sec-label">Aviso importante</div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 11px">Mensaje destacado que verán todos los servicios, debajo de la reserva de sangre. Útil para avisar que una prueba no se está realizando, daños de equipo, etc.</p>
+    <div class="form-row"><textarea class="txt" id="cf_nota" placeholder="Ej. Hoy no se está procesando TSH por mantenimiento del equipo.">${esc(cfg.notaImportante||'')}</textarea>
+      <div class="hint">Déjalo vacío para que no aparezca ningún aviso.</div></div>
+    <button class="btn" onclick="guardarNota()">Guardar aviso</button>`;
+}
+
+function viewMovimientos(){
+  if(!movimientos.length)
+    return '<p style="color:var(--ink-faint);text-align:center;padding:16px;font-size:13px">Aún no hay movimientos registrados.</p>';
+  return movimientos.map(m=>{
+    const f = new Date(m.fecha);
+    const signo = m.delta>0 ? "+"+m.delta : ""+m.delta;
+    const cls = m.delta>0 ? "up" : "down";
+    const fecha = `${f.toLocaleDateString('es-CO',{day:'2-digit',month:'short'})} · ${f.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'})}`;
+    return `<div class="mov-item">
+      <div class="mov-badge ${cls}">${signo}</div>
+      <div class="mov-body">
+        <div class="mov-top"><span class="mov-grupo">${m.grupo}</span><span class="mov-de">${m.previo} → ${m.nuevo} uds</span></div>
+        <div class="mov-meta">${fecha}${m.por?` · ${esc(m.por)}`:""}</div>
+      </div>
+      <button class="icon-btn del" onclick="borrarMovimiento('${m.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+    </div>`;
+  }).join("");
+}
+function stepSangre(g, d){
+  const inp = document.getElementById("be_"+g);
+  inp.value = Math.max(0, (parseInt(inp.value)||0)+d);
+}
+async function guardarSangre(){
+  const previo = Object.assign({}, sangre.unidades);
+  const unidades = {};
+  GRUPOS.forEach(g=>{ unidades[g] = Math.max(0, parseInt(document.getElementById("be_"+g).value)||0); });
+  const por = document.getElementById("be_por").value.trim();
+  const ts = Date.now();
+
+  // Detectar cambios por grupo => movimientos
+  const movs = [];
+  GRUPOS.forEach(g=>{
+    const antes = previo[g]||0, ahora = unidades[g]||0;
+    if(antes !== ahora) movs.push({ grupo:g, delta:ahora-antes, previo:antes, nuevo:ahora, por, fecha:ts });
+  });
+
+  const payload = { unidades, actualizado:ts, por };
+  if(USA_FIREBASE){
+    try{
+      await db.collection("config").doc("sangre").set(payload);
+      for(const m of movs){ await db.collection("movimientos").add(m); }
+    }catch(e){ toast("Error al guardar", true); return; }
+  }else{
+    sangre = payload;
+    movs.forEach((m,i)=>movimientos.unshift(Object.assign({id:"mov"+ts+"_"+m.grupo+i}, m)));
+    guardarLocal(); renderSangre();
+  }
+  toast(movs.length ? `Reserva actualizada · ${movs.length} movimiento${movs.length>1?'s':''}` : "Sin cambios en las unidades");
+  renderCfg();
+}
+
+async function guardarNota(){
+  cfg.notaImportante = document.getElementById("cf_nota").value.trim();
+  if(USA_FIREBASE){ try{ await db.collection("config").doc("general").set(cfg); }catch(e){ toast("Error al guardar", true); return; } }
+  else{ guardarLocal(); }
+  renderNota();
+  toast(cfg.notaImportante ? "Aviso publicado" : "Aviso retirado");
+}
+
+async function borrarMovimiento(id){
+  if(!confirm("¿Eliminar este movimiento del historial? Las unidades actuales NO cambian.")) return;
+  if(USA_FIREBASE){ try{ await db.collection("movimientos").doc(id).delete(); }catch(e){ toast("Error al eliminar", true); return; } }
+  else{ movimientos = movimientos.filter(m=>m.id!==id); guardarLocal(); }
+  toast("Movimiento eliminado"); renderCfg();
+}
+async function borrarTodosMovimientos(){
+  if(!confirm("¿Vaciar todo el historial de movimientos? Las unidades actuales NO cambian.")) return;
+  if(USA_FIREBASE){
+    try{ const s = await db.collection("movimientos").get();
+      const batch = db.batch(); s.docs.forEach(d=>batch.delete(d.ref)); await batch.commit();
+    }catch(e){ toast("Error al vaciar", true); return; }
+  }else{ movimientos = []; guardarLocal(); }
+  toast("Historial vaciado"); renderCfg();
+}
+
+/* --- Pestaña Ajustes --- */
+function viewAjustes(){
+  serviciosEdit = (cfg.servicios || []).map(n=>({n:n, orig:n}));
+  destacadosEdit = (cfg.destacados || []).slice();
+  tubosEdit = (cfg.tubos || []).map(t=>({n:t.n, c:t.c, orig:t.n}));
+  labsEdit = (cfg.laboratorios || []).map(n=>({n:n, orig:n}));
+  suspEdit = {};
+  modoInicioEdit = cfg.modoInicio || "todos";
+  return `
+    <div class="sec-label">Identidad</div>
+    <div class="form-row"><label>Nombre / título</label><input class="inp" id="cf_nombre" value="${esc(cfg.nombre||'')}"></div>
+    <div class="form-row"><label>Subtítulo</label><input class="inp" id="cf_sub" value="${esc(cfg.sub||'')}"></div>
+    <div class="form-row"><label>URL del logo</label><input class="inp" id="cf_logo" value="${esc(cfg.logoUrl||'')}" placeholder="https://…/logo.png"><div class="hint">Sube el logo del hospital (Cloudinary/GitHub) y pega el enlace aquí.</div></div>
+    <div class="divider"></div>
+    <div class="sec-label">Pantalla de inicio</div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 11px">Define qué ve el personal al abrir la app, antes de buscar.</p>
+    <div class="switch"><span>Mostrar solo pruebas destacadas</span>
+      <div class="toggle ${cfg.modoInicio==='destacados'?'on':''}" id="cf_modoInicio" onclick="alternarModoInicio(this)"></div></div>
+    <div class="hint" style="margin:-4px 0 10px">Apagado: aparece el listado completo. Encendido: solo las que elijas; las demás salen al buscar.</div>
+    <div id="destacadosBox"></div>
+    <div class="divider"></div>
+    <div class="sec-label">Laboratorios de referencia</div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 11px">Laboratorios a los que se remiten pruebas. Si renombras uno, el cambio se aplica a las pruebas que lo tenían.</p>
+    <div id="labsBox"></div>
+    <div class="divider"></div>
+    <div class="sec-label">Disponibilidad de pruebas</div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 11px">Marca las pruebas que <b>no</b> se están procesando. Los servicios verán un aviso al buscarlas.</p>
+    <div id="dispBox"></div>
+    <div class="divider"></div>
+    <div class="sec-label">Tubos y recipientes</div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 11px">Define los recipientes y su color. Aparecerán como opciones al configurar cada prueba.</p>
+    <div id="tubosBox"></div>
+    <div class="divider"></div>
+    <div class="sec-label">Servicios</div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px">Define los servicios del hospital. Aparecerán como opciones para chulear en cada examen.</p>
+    <div id="serviciosBox"></div>
+    <div class="divider"></div>
+    <div class="sec-label">Seguridad</div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px">Las claves actuales no se muestran. Escribe una nueva solo si quieres cambiarla; si dejas el campo vacío, se conserva la que está.</p>
+    <div class="form-row"><label>Clave de administrador</label>
+      <input class="inp" id="cf_clave" type="password" autocomplete="new-password" placeholder="Dejar vacío para no cambiarla">
+      <div class="hint">Acceso total: editar pruebas, ajustes, servicios, tubos y claves.</div></div>
+    <div class="form-row"><label>Clave del laboratorio</label>
+      <input class="inp" id="cf_claveLab" type="password" autocomplete="new-password" placeholder="Dejar vacío para no cambiarla">
+      <div class="hint">Permite ver las <b>indicaciones internas</b>, actualizar los <b>hemocomponentes</b> y publicar <b>avisos</b>.</div></div>
+    <div class="hint" style="margin:-4px 0 10px">Son claves sencillas para el día a día, no seguridad fuerte. La protección real va en las reglas de Firestore.</div>
+    <button class="btn" onclick="guardarAjustes()" style="margin-top:6px">Guardar ajustes</button>
+    <div class="divider"></div>
+    <button class="btn ghost" onclick="cerrarSesion()">Cerrar sesión del laboratorio</button>
+    <div class="hint" style="text-align:center;margin-top:14px">Portafolio de Pruebas · Laboratorio HDSR · base v0.2</div>`;
+}
+function renderLabsBox(){
+  const box = document.getElementById("labsBox");
+  if(!box) return;
+  box.innerHTML = (labsEdit.length
+    ? labsEdit.map((L,i)=>`<div class="tubo-row">
+        <input type="text" value="${esc(L.n||'')}" placeholder="Nombre del laboratorio" oninput="labsEdit[${i}].n=this.value">
+        <button class="icon-btn del" onclick="labsEdit.splice(${i},1);renderLabsBox()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+      </div>`).join("")
+    : '<p style="font-size:12.5px;color:var(--ink-faint);margin:0 0 10px">Aún no hay laboratorios.</p>')
+    + `<button class="btn ghost" onclick="labsEdit.push({n:'',orig:null});renderLabsBox()" style="margin-top:11px">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Agregar laboratorio</button>
+       <div class="hint" style="margin-top:8px">No olvides <b>Guardar ajustes</b>.</div>`;
+}
+
+/* ---------- Disponibilidad (suspensión por bloques) ---------- */
+let dispBusca = "", dispSeccion = "Todas", dispTipo = "todos";
+function renderDispBox(){
+  const box = document.getElementById("dispBox");
+  if(!box) return;
+  const labs = cfg.laboratorios || [];
+  box.innerHTML = `
+    <div class="search" style="margin-bottom:9px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="dispBuscar" type="search" placeholder="Filtrar por nombre o CUPS…" value="${esc(dispBusca)}" autocomplete="off"
+             oninput="dispBusca=this.value; renderDispLista()">
+    </div>
+    <div class="form-two" style="gap:8px;margin-bottom:8px">
+      <select class="sel" onchange="dispSeccion=this.value; renderDispLista()">
+        <option value="Todas">Todas las secciones</option>
+        ${secciones().filter(x=>x!=="Todos").map(x=>`<option value="${esc(x)}" ${dispSeccion===x?'selected':''}>${esc(x)}</option>`).join("")}
+      </select>
+      <select class="sel" onchange="dispTipo=this.value; renderDispLista()">
+        <option value="todos" ${dispTipo==='todos'?'selected':''}>Aquí y remitidas</option>
+        <option value="aqui" ${dispTipo==='aqui'?'selected':''}>Solo se procesan aquí</option>
+        <option value="remite" ${dispTipo==='remite'?'selected':''}>Solo remitidas</option>
+        ${labs.map(L=>`<option value="lab::${esc(L)}" ${dispTipo==='lab::'+L?'selected':''}>Remitidas a ${esc(L)}</option>`).join("")}
+        <option value="susp" ${dispTipo==='susp'?'selected':''}>Solo las suspendidas</option>
+      </select>
+    </div>
+    <div class="btn-row" style="margin:0 0 9px">
+      <button class="btn ghost" style="padding:10px;font-size:13px" onclick="marcarVisibles(true)">Suspender visibles</button>
+      <button class="btn ghost" style="padding:10px;font-size:13px" onclick="marcarVisibles(false)">Reactivar visibles</button>
+    </div>
+    <div class="form-row"><label>Motivo para las que suspendas ahora (opcional)</label>
+      <input class="inp" id="dispMotivo" placeholder="Ej. Sin contrato vigente con el laboratorio"></div>
+    <div id="dispCount" class="hint" style="margin:0 0 8px"></div>
+    <div id="dispLista" class="disp-lista"></div>
+    <button class="btn" onclick="guardarDisponibilidad()" style="margin-top:11px">Guardar disponibilidad</button>`;
+  renderDispLista();
+}
+function dispFiltradas(){
+  const q = normalizar(dispBusca.trim());
+  return pruebas.slice().sort((a,b)=>(a.nombre||"").localeCompare(b.nombre||"")).filter(p=>{
+    const susp = (p.id in suspEdit) ? suspEdit[p.id] : !!p.suspendida;
+    if(dispSeccion!=="Todas" && p.seccion!==dispSeccion) return false;
+    if(dispTipo==="aqui"   && p.remite) return false;
+    if(dispTipo==="remite" && !p.remite) return false;
+    if(dispTipo==="susp"   && !susp) return false;
+    if(dispTipo.startsWith("lab::") && p.laboratorioRef !== dispTipo.slice(5)) return false;
+    if(!q) return true;
+    return normalizar([p.nombre,p.cups,p.sinonimos].filter(Boolean).join(" ")).includes(q);
+  });
+}
+function renderDispLista(){
+  const cont = document.getElementById("dispLista");
+  if(!cont) return;
+  const res = dispFiltradas();
+  const tick = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+  const nSusp = pruebas.filter(p=>(p.id in suspEdit)?suspEdit[p.id]:!!p.suspendida).length;
+  const c = document.getElementById("dispCount");
+  if(c) c.innerHTML = `${res.length} visibles · <b style="color:var(--blood)">${nSusp} suspendidas</b> en total`;
+  cont.innerHTML = res.length ? res.map(p=>{
+    const susp = (p.id in suspEdit) ? suspEdit[p.id] : !!p.suspendida;
+    return `<div class="disp-item ${susp?'on':''}" onclick="alternarSusp('${p.id}')">
+      <span class="tick">${tick}</span>
+      <span class="dn">${esc(p.nombre)}</span>
+      <span class="dc">${esc(p.cups||"")}</span></div>`;
+  }).join("") : '<p style="font-size:12.5px;color:var(--ink-faint);text-align:center;padding:18px">Sin coincidencias.</p>';
+}
+function alternarSusp(id){
+  const p = pruebas.find(x=>x.id===id); if(!p) return;
+  const actual = (id in suspEdit) ? suspEdit[id] : !!p.suspendida;
+  suspEdit[id] = !actual;
+  renderDispLista();
+}
+function marcarVisibles(valor){
+  dispFiltradas().forEach(p=>{ suspEdit[p.id] = valor; });
+  renderDispLista();
+  toast(valor ? "Marcadas como no disponibles" : "Marcadas como disponibles");
+}
+async function guardarDisponibilidad(){
+  const motivo = (document.getElementById("dispMotivo")||{}).value || "";
+  const cambios = [];
+  pruebas.forEach(p=>{
+    if(!(p.id in suspEdit)) return;
+    const nuevo = suspEdit[p.id];
+    if(nuevo === !!p.suspendida) return;
+    const data = { suspendida: nuevo };
+    if(nuevo){ if(motivo.trim()) data.motivoSuspension = motivo.trim(); }
+    else data.motivoSuspension = "";
+    cambios.push({id:p.id, data});
+  });
+  if(!cambios.length){ toast("No hay cambios por guardar"); return; }
+  if(USA_FIREBASE){
+    try{
+      for(let i=0;i<cambios.length;i+=400){
+        const batch = db.batch();
+        cambios.slice(i,i+400).forEach(c=>batch.update(db.collection("pruebas").doc(c.id), c.data));
+        await batch.commit();
+      }
+    }catch(e){ console.error(e); toast("Error al guardar", true); return; }
+  }else{
+    cambios.forEach(c=>{
+      const i = pruebas.findIndex(x=>x.id===c.id);
+      if(i>=0) pruebas[i] = Object.assign({}, pruebas[i], c.data);
+    });
+    guardarLocal(); renderLista();
+  }
+  suspEdit = {};
+  toast(`${cambios.length} ${cambios.length===1?"prueba actualizada":"pruebas actualizadas"}`);
+  renderDispBox();
+}
+
+function renderTubosBox(){
+  const box = document.getElementById("tubosBox");
+  if(!box) return;
+  box.innerHTML = (tubosEdit.length
+    ? tubosEdit.map((t,i)=>`<div class="tubo-row">
+        <input type="color" value="${esc(t.c||'#8E5BC7')}" oninput="editarTubo(${i},'c',this.value)">
+        <input type="text" value="${esc(t.n||'')}" placeholder="Nombre del recipiente" oninput="editarTubo(${i},'n',this.value)">
+        <button class="icon-btn del" onclick="quitarTubo(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+      </div>`).join("")
+    : '<p style="font-size:12.5px;color:var(--ink-faint);margin:0 0 10px">Aún no hay recipientes.</p>')
+    + `<button class="btn ghost" onclick="agregarTubo()" style="margin-top:11px">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Agregar recipiente</button>
+       <div class="hint" style="margin-top:8px">Si cambias el nombre o el color, se actualiza en las pruebas que ya lo usaban. No olvides <b>Guardar ajustes</b>.</div>`;
+}
+function editarTubo(i, campo, val){ if(tubosEdit[i]) tubosEdit[i][campo] = val; }
+function agregarTubo(){ tubosEdit.push({n:"", c:"#8E5BC7"}); renderTubosBox(); }
+function quitarTubo(i){ tubosEdit.splice(i,1); renderTubosBox(); }
+
+function alternarModoInicio(el){
+  el.classList.toggle("on");
+  modoInicioEdit = el.classList.contains("on") ? "destacados" : "todos";
+  renderDestacadosBox();
+}
+function renderDestacadosBox(){
+  const box = document.getElementById("destacadosBox");
+  if(!box) return;
+  if(modoInicioEdit !== "destacados"){ box.innerHTML = ""; return; }
+  const lista = pruebas.slice().sort((a,b)=>(a.nombre||"").localeCompare(b.nombre||""));
+  const tick = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:12.5px;font-weight:700;color:var(--ink-soft)">Pruebas en el inicio</span>
+      <span style="font-size:12px;color:var(--primary);font-weight:700" id="destCount">${destacadosEdit.length} seleccionadas</span>
+    </div>
+    <input class="inp" id="destFiltro" placeholder="Filtrar por nombre…" oninput="renderDestacadosLista()" style="margin-bottom:9px">
+    <div id="destLista" class="dest-lista"></div>
+    <div class="hint" style="margin-top:8px">No olvides <b>Guardar ajustes</b>.</div>`;
+  renderDestacadosLista();
+}
+function renderDestacadosLista(){
+  const cont = document.getElementById("destLista");
+  if(!cont) return;
+  const f = normalizar((document.getElementById("destFiltro")||{}).value || "");
+  const tick = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+  const lista = pruebas.slice()
+    .sort((a,b)=>(a.nombre||"").localeCompare(b.nombre||""))
+    .filter(p=>!f || normalizar((p.nombre||"")+" "+(p.cups||"")).includes(f));
+  cont.innerHTML = lista.length ? lista.map(p=>`
+    <div class="dest-item ${destacadosEdit.includes(p.id)?'on':''}" onclick="alternarDestacado('${p.id}')">
+      <span class="tick">${tick}</span>
+      <span class="dn">${esc(p.nombre)}</span>
+      ${p.cups?`<span class="dc">${esc(p.cups)}</span>`:""}
+    </div>`).join("")
+    : '<p style="font-size:12.5px;color:var(--ink-faint);text-align:center;padding:14px">Sin coincidencias.</p>';
+}
+function alternarDestacado(id){
+  const i = destacadosEdit.indexOf(id);
+  if(i>=0) destacadosEdit.splice(i,1); else destacadosEdit.push(id);
+  const c = document.getElementById("destCount");
+  if(c) c.textContent = destacadosEdit.length + " seleccionadas";
+  renderDestacadosLista();
+}
+
+function renderServiciosBox(){
+  const box = document.getElementById("serviciosBox");
+  if(!box) return;
+  box.innerHTML = (serviciosEdit.length
+    ? serviciosEdit.map((sv,i)=>`<div class="tubo-row">
+        <input type="text" value="${esc(sv.n||'')}" placeholder="Nombre del servicio" oninput="editarServicio(${i}, this.value)">
+        <button class="icon-btn del" onclick="quitarServicio(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+      </div>`).join("")
+    : '<p style="font-size:12.5px;color:var(--ink-faint);margin:0 0 10px">Aún no hay servicios.</p>')
+    + `<button class="btn ghost" onclick="agregarServicio()" style="margin-top:11px">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Agregar servicio</button>
+       <div class="hint" style="margin-top:8px">Si renombras o eliminas un servicio, el cambio se aplica también a las pruebas que lo tenían. No olvides <b>Guardar ajustes</b>.</div>`;
+}
+function editarServicio(i, val){ if(serviciosEdit[i]) serviciosEdit[i].n = val; }
+function agregarServicio(){ serviciosEdit.push({n:"", orig:null}); renderServiciosBox(); }
+function quitarServicio(i){ serviciosEdit.splice(i,1); renderServiciosBox(); }
+
+async function guardarAjustes(){
+  cfg.nombre = document.getElementById("cf_nombre").value.trim() || cfg.nombre;
+  cfg.sub = document.getElementById("cf_sub").value.trim();
+  cfg.logoUrl = document.getElementById("cf_logo").value.trim();
+  cfg.modoInicio = modoInicioEdit;
+  cfg.destacados = destacadosEdit.slice();
+
+  // --- Servicios: detectar renombres y eliminaciones ---
+  const servFinales = serviciosEdit.filter(sv=>(sv.n||"").trim());
+  const renServ = {};   // nombre anterior -> nombre nuevo
+  servFinales.forEach(sv=>{ if(sv.orig && sv.orig !== sv.n.trim()) renServ[sv.orig] = sv.n.trim(); });
+  const servEliminados = (cfg.servicios||[]).filter(n => !servFinales.some(sv=>sv.orig===n));
+  cfg.servicios = servFinales.map(sv=>sv.n.trim());
+
+  // --- Tubos: detectar renombres y cambios de color ---
+  // --- Laboratorios de referencia: renombres ---
+  const labFinales = labsEdit.filter(L=>(L.n||"").trim());
+  const renLab = {};
+  labFinales.forEach(L=>{ if(L.orig && L.orig !== L.n.trim()) renLab[L.orig] = L.n.trim(); });
+  cfg.laboratorios = labFinales.map(L=>L.n.trim());
+
+  const tubFinales = tubosEdit.filter(t=>(t.n||"").trim());
+  const renTubo = {};       // nombre anterior -> {n, c}
+  tubFinales.forEach(t=>{ if(t.orig) renTubo[t.orig] = {n:t.n.trim(), c:t.c}; });
+  cfg.tubos = tubFinales.map(t=>({n:t.n.trim(), c:t.c}));
+
+  const nueva = document.getElementById("cf_clave").value.trim();
+  if(nueva) cfg.clave = nueva;
+  const nuevaLab = document.getElementById("cf_claveLab").value.trim();
+  if(nuevaLab) cfg.claveLab = nuevaLab;
+
+  if(USA_FIREBASE){ try{ await db.collection("config").doc("general").set(cfg); }catch(e){ toast("Error al guardar", true); return; } }
+  else{ guardarLocal(); }
+
+  const tocadas = await propagarCambios(renServ, servEliminados, renTubo, renLab);
+  aplicarCfg();
+  toast(tocadas ? `Ajustes guardados · ${tocadas} ${tocadas===1?"prueba actualizada":"pruebas actualizadas"}` : "Ajustes guardados");
+}
+
+/* Aplica a las pruebas los cambios hechos en Ajustes:
+   servicios renombrados o eliminados, y tubos renombrados o con nuevo color. */
+async function propagarCambios(renServ, servEliminados, renTubo, renLab){
+  const hayServ = Object.keys(renServ).length || servEliminados.length;
+  const hayTubo = Object.keys(renTubo).length;
+  const hayLab  = renLab && Object.keys(renLab).length;
+  if(!hayServ && !hayTubo && !hayLab) return 0;
+
+  const cambios = [];   // {id, data}
+  pruebas.forEach(p=>{
+    const upd = {};
+
+    if(hayServ && Array.isArray(p.servicios)){
+      const antes = p.servicios.join("|");
+      const ahora = p.servicios
+        .map(x => renServ[x] || x)
+        .filter(x => !servEliminados.includes(x))
+        .filter((x,i,arr) => arr.indexOf(x)===i);
+      if(ahora.join("|") !== antes) upd.servicios = ahora;
+    }
+
+    if(hayTubo && p.tubo && renTubo[p.tubo]){
+      const t = renTubo[p.tubo];
+      if(t.n !== p.tubo) upd.tubo = t.n;
+      if(t.c !== p.tuboColor) upd.tuboColor = t.c;
+    }
+
+    if(hayLab && p.laboratorioRef && renLab[p.laboratorioRef])
+      upd.laboratorioRef = renLab[p.laboratorioRef];
+
+    if(Object.keys(upd).length) cambios.push({id:p.id, data:upd});
+  });
+
+  if(!cambios.length) return 0;
+
+  if(USA_FIREBASE){
+    try{
+      const batch = db.batch();
+      cambios.forEach(c=>batch.update(db.collection("pruebas").doc(c.id), c.data));
+      await batch.commit();
+    }catch(e){ console.error(e); toast("No se pudieron actualizar las pruebas", true); return 0; }
+  }else{
+    cambios.forEach(c=>{
+      const i = pruebas.findIndex(x=>x.id===c.id);
+      if(i>=0) pruebas[i] = Object.assign({}, pruebas[i], c.data);
+    });
+    guardarLocal(); renderLista();
+  }
+  return cambios.length;
+}
+
+function cerrarSesion(){ nivel=null; cerrar(); toast("Sesión cerrada"); }
+
+/* ====================== LOGIN POR NIVELES ======================
+   LABORATORIO -> indicaciones internas, hemocomponentes y avisos
+   ADMINISTRADOR -> todo lo anterior + pruebas, ajustes y claves     */
+let nivelPedido = "lab";
+function pedirClave(accion, msg, min){
+  nivelPedido = min || "lab";
+  if(puede(nivelPedido)){ accion(); return; }
+  accionTrasLogin = accion;
+  document.getElementById("loginMsg").textContent = msg ||
+    (nivelPedido==="admin" ? "Ingresa la clave de administrador." : "Ingresa la clave del laboratorio.");
+  document.getElementById("pwInput").value = "";
+  abrir(document.getElementById("loginSheet"));
+  setTimeout(()=>document.getElementById("pwInput").focus(), 300);
+}
+function intentarLogin(){
+  const v = document.getElementById("pwInput").value;
+  const cAdmin = cfg.clave || CLAVE_POR_DEFECTO;
+  const cLab   = cfg.claveLab || CLAVE_LAB_POR_DEFECTO;
+  let ok = false;
+  if(v === cAdmin){ nivel = "admin"; ok = true; }
+  else if(v === cLab && nivelPedido === "lab"){ nivel = "lab"; ok = true; }
+  else if(v === cLab && nivelPedido === "admin"){
+    toast("Esa clave no tiene permisos de administrador", true);
+    document.getElementById("pwInput").value = ""; return;
+  }
+  if(ok){
+    cerrar();
+    const a = accionTrasLogin; accionTrasLogin = null;
+    setTimeout(()=>{ if(a) a(); }, 260);
+  }else{
+    toast("Clave incorrecta", true);
+    document.getElementById("pwInput").value = "";
+  }
+}
+
+/* ====================== UTILIDADES UI ====================== */
+let sheetActual = null;
+function abrir(sheet){
+  document.querySelectorAll(".sheet.on").forEach(s=>s.classList.remove("on"));
+  document.getElementById("scrim").classList.add("on");
+  // El cuerpo del panel siempre arranca arriba
+  sheet.querySelectorAll(".sheet-body").forEach(b=>{ b.scrollTop = 0; });
+  requestAnimationFrame(()=>sheet.classList.add("on"));
+  sheetActual = sheet;
+  document.body.classList.add("no-scroll");
+}
+function cerrar(){
+  document.querySelectorAll(".sheet.on").forEach(s=>s.classList.remove("on"));
+  document.getElementById("scrim").classList.remove("on");
+  sheetActual = null;
+  document.body.classList.remove("no-scroll");
+  document.body.style.overflow = ""; // por si quedó de una versión anterior
+}
+let toastTimer;
+function toast(msg, err){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "toast on" + (err?" err":"");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("on"), 2400);
+}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ====================== EVENTOS ====================== */
+document.getElementById("searchInput").addEventListener("input", e=>{
+  termino = e.target.value;
+  document.getElementById("searchBox").classList.toggle("has-text", !!termino);
+  renderLista();
+});
+document.getElementById("searchBox").addEventListener("click", e=>{
+  if(e.target.closest(".clear")) return;
+  document.getElementById("searchInput").focus();
+});
+document.getElementById("clearBtn").addEventListener("click", ()=>{
+  termino=""; document.getElementById("searchInput").value="";
+  document.getElementById("searchBox").classList.remove("has-text");
+  renderLista(); document.getElementById("searchInput").focus();
+});
+document.getElementById("filters").addEventListener("click", e=>{
+  const c = e.target.closest(".chip"); if(!c) return;
+  filtroSeccion = c.dataset.sec; renderFiltros(); renderLista();
+});
+document.getElementById("list").addEventListener("click", e=>{
+  const t = e.target.closest(".test"); if(t) verDetalle(t.dataset.id);
+});
+document.getElementById("bloodEditBtn").addEventListener("click", ()=>{
+  pedirClave(()=>abrirConfig("sangre"), "Clave del laboratorio para actualizar la reserva de sangre.", "lab");
+});
+document.getElementById("gearBtn").addEventListener("click", ()=>{
+  pedirClave(()=>abrirConfig(), "Clave del laboratorio o de administrador.", "lab");
+});
+document.getElementById("scrim").addEventListener("click", cerrar);
+document.getElementById("cfgClose").addEventListener("click", cerrar);
+document.getElementById("pwBtn").addEventListener("click", intentarLogin);
+document.getElementById("pwCancel").addEventListener("click", cerrar);
+document.getElementById("pwInput").addEventListener("keydown", e=>{ if(e.key==="Enter") intentarLogin(); });
+
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && sheetActual) cerrar(); });
+
+
+/* ====================== PWA: INSTALACIÓN ====================== */
+(function(){
+  const CLAVE = "lab_instalar_pospuesto";
+  const box   = document.getElementById("instalarBox");
+  const txt   = document.getElementById("instalarTxt");
+  const acc   = document.getElementById("instalarAcc");
+  let evento  = null;
+
+  const enApp = window.matchMedia("(display-mode: standalone)").matches
+                || window.navigator.standalone === true;
+  const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+                || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const esSafari = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent);
+
+  function pospuesto(){
+    try{
+      const t = parseInt(localStorage.getItem(CLAVE) || "0", 10);
+      return t && (Date.now() - t) < 1000 * 60 * 60 * 24 * 14;   // 14 días
+    }catch(e){ return false; }
+  }
+  function posponer(){
+    try{ localStorage.setItem(CLAVE, String(Date.now())); }catch(e){}
+    ocultar();
+  }
+  function mostrar(){ setTimeout(()=>box.classList.add("on"), 1600); }
+  function ocultar(){ box.classList.remove("on"); }
+
+  document.getElementById("instalarNo").addEventListener("click", posponer);
+  document.getElementById("instalarNo2").addEventListener("click", posponer);
+
+  document.getElementById("instalarSi").addEventListener("click", async ()=>{
+    if(!evento) return;
+    ocultar();
+    evento.prompt();
+    try{
+      const r = await evento.userChoice;
+      if(r && r.outcome === "accepted") toast("Instalando la app…");
+      else posponer();
+    }catch(e){}
+    evento = null;
+  });
+
+  // Android, Chrome y Edge (también en Windows): instalación en un toque
+  window.addEventListener("beforeinstallprompt", e=>{
+    e.preventDefault();
+    evento = e;
+    if(!enApp && !pospuesto()) mostrar();
+  });
+
+  window.addEventListener("appinstalled", ()=>{
+    ocultar();
+    try{ localStorage.removeItem(CLAVE); }catch(e){}
+    toast("Portafolio Lab quedó instalado");
+  });
+
+  // iPhone y iPad: Safari no ofrece instalación automática, se explica el paso
+  if(esIOS && esSafari && !enApp && !pospuesto()){
+    const compartir = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m8 7 4-4 4 4"/><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/></svg>`;
+    txt.innerHTML = `Toca <span class="ios-paso">${compartir} Compartir</span> y luego <span class="ios-paso">Añadir a pantalla de inicio</span>.`;
+    acc.innerHTML = `<button class="no" id="iosOk">Entendido</button>`;
+    document.getElementById("iosOk").addEventListener("click", posponer);
+    mostrar();
+  }
+})();
+
+/* ---------- Service worker (funciona sin conexión) ---------- */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js")
+      .then(reg=>{
+        // si hay una versión nueva publicada, se activa al recargar
+        reg.addEventListener("updatefound", ()=>{
+          const nuevo = reg.installing;
+          if(!nuevo) return;
+          nuevo.addEventListener("statechange", ()=>{
+            if(nuevo.state === "installed" && navigator.serviceWorker.controller)
+              console.log("Portafolio Lab: hay una versión nueva disponible.");
+          });
+        });
+      })
+      .catch(err=>console.warn("No se pudo registrar el service worker:", err));
+  });
+}
+
+/* ---------- Arranque (al final: todo ya está declarado) ---------- */
+init();
+</script>
+</body>
+</html>
