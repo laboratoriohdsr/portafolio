@@ -10,7 +10,7 @@
      siempre en vivo del servidor.
    =========================================================== */
 
-const VERSION = 'portafolio-lab-v1';
+const VERSION = 'portafolio-lab-v2';
 const CACHE_APP = `${VERSION}-app`;
 const CACHE_EST = `${VERSION}-estaticos`;
 
@@ -19,9 +19,9 @@ const BASICOS = [
   './',
   './index.html',
   './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-touch-icon.png',
+  './icon-192.png',
+  './icon-512.png',
+  './apple-touch-icon.png',
   './favicon.ico'
 ];
 
