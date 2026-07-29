@@ -10,7 +10,7 @@
      siempre en vivo del servidor.
    =========================================================== */
 
-const VERSION = 'portafolio-lab-v7';
+const VERSION = 'portafolio-lab-v8';
 const CACHE_APP = `${VERSION}-app`;
 const CACHE_EST = `${VERSION}-estaticos`;
 
