@@ -10,7 +10,7 @@
      siempre en vivo del servidor.
    =========================================================== */
 
-const VERSION = 'portafolio-lab-v3';
+const VERSION = 'portafolio-lab-v7';
 const CACHE_APP = `${VERSION}-app`;
 const CACHE_EST = `${VERSION}-estaticos`;
 
@@ -22,7 +22,10 @@ const BASICOS = [
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png',
-  './favicon.ico'
+  './favicon.ico',
+  // SDK de Firebase: se precarga para que la app abra sin esperarlo
+  'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
+  'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js'
 ];
 
 self.addEventListener('install', evento => {
@@ -75,9 +78,11 @@ self.addEventListener('fetch', evento => {
     return;
   }
 
-  // Iconos, manifiesto y tipografías: caché primero
+  // Iconos, manifiesto, tipografías y el SDK de Firebase: caché primero.
+  // Las URLs del SDK llevan el número de versión, así que es seguro guardarlas.
+  const esSDK = url.hostname === 'www.gstatic.com' && url.pathname.includes('/firebasejs/');
   const estatico = /\.(png|ico|svg|webp|jpg|jpeg|woff2?|json)$/i.test(url.pathname)
-    || url.hostname.includes('fonts.g');
+    || url.hostname.includes('fonts.g') || esSDK;
   if (estatico) {
     evento.respondWith(
       caches.match(req).then(hit => hit || fetch(req).then(resp => {

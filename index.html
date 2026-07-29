@@ -714,22 +714,41 @@ async function init(){
   GRUPOS.forEach(g => { if(sangre.unidades[g]===undefined) sangre.unidades[g]=0;
                         if(sangre.reservadas[g]===undefined) sangre.reservadas[g]=0; });
 
-  if(USA_FIREBASE){
-    try{
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.firestore();
-      escucharFirebase();
-      flag("");
-    }catch(e){
-      console.error(e); USA_FIREBASE=false; cargarLocal();
-      flag("No se pudo conectar a Firebase. Trabajando en modo local.");
-    }
-  }else{
-    cargarLocal();
-    flag('Modo local — configura Firebase en el código para ver la info "en vivo" en todos los servicios.');
-  }
+  // 1) Pintar de inmediato con la última información guardada en el equipo.
+  //    Así la app abre al instante, incluso sin señal, y no se ve en blanco.
+  cargarLocal();
+  aplicarCfg();
   render();
+
+  if(!USA_FIREBASE){
+    flag('Modo local — configura Firebase en el código para ver la info "en vivo" en todos los servicios.');
+    return;
+  }
+
+  // 2) Conectar y actualizar en segundo plano.
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    // Firestore guarda su propia copia: responde al instante y aguanta sin señal
+    try{ await db.enablePersistence({ synchronizeTabs:true }); }catch(e){ /* ya activa o varias pestañas */ }
+    escucharFirebase();
+    flag(navigator.onLine ? "" : "Sin conexión — se muestra la última información guardada.");
+  }catch(e){
+    console.error(e);
+    USA_FIREBASE = false;
+    flag("Sin conexión con el servidor — se muestra la última información guardada.");
+  }
 }
+
+/* Permitir que la pantalla gire libremente.
+   Algunas tablets conservan el bloqueo con el que se instaló la app. */
+try{
+  if(screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+}catch(e){ /* el navegador no lo permite o no hace falta */ }
+
+/* Avisar cuando se recupera o se pierde la señal */
+window.addEventListener("online",  ()=> flag(""));
+window.addEventListener("offline", ()=> flag("Sin conexión — se muestra la última información guardada."));
 
 function cargarLocal(){
   pruebas = store.get("lab_pruebas", null) || SEMILLA.slice();
@@ -762,12 +781,16 @@ function guardarLocal(){
 /* ---- Firebase en tiempo real ---- */
 function escucharFirebase(){
   db.collection("pruebas").orderBy("nombre").onSnapshot(s=>{
+    // Evita vaciar la pantalla si llega un resultado vacío desde la caché de Firestore
+    if(s.empty && s.metadata.fromCache && pruebas.length) return;
     pruebas = s.docs.map(d=>({id:d.id, ...d.data()}));
+    store.set("lab_pruebas", pruebas);        // queda listo para la próxima apertura
     render();
-  }, err=>console.error(err));
+  }, err=>{ console.error(err); flag("Sin conexión — se muestra la última información guardada."); });
 
   db.collection("movimientos").orderBy("fecha","desc").limit(300).onSnapshot(s=>{
     movimientos = s.docs.map(d=>({id:d.id, ...d.data()}));
+    store.set("lab_movimientos", movimientos);
     if(cfgTab==="sangre") renderCfg();
   }, err=>console.error(err));
 
@@ -776,14 +799,16 @@ function escucharFirebase(){
     sangre.reservadas = sangre.reservadas || {};
     GRUPOS.forEach(g=>{ if(sangre.unidades[g]===undefined) sangre.unidades[g]=0;
                         if(sangre.reservadas[g]===undefined) sangre.reservadas[g]=0; });
+    store.set("lab_sangre", sangre);
     renderSangre();
-  });
+  }, err=>console.error(err));
 
   db.collection("config").doc("general").onSnapshot(d=>{
     if(d.exists) cfg = Object.assign(cfg, d.data());
     migrarClaves();
+    store.set("lab_cfg", cfg);
     aplicarCfg();
-  });
+  }, err=>console.error(err));
 }
 async function sembrarFirebase(){
   const batch = db.batch();
