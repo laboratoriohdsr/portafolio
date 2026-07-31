@@ -17,10 +17,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Portafolio Lab">
 <!-- Apple touch icon: versión a color (modo claro) -->
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=8">
-<link rel="icon" href="favicon.ico?v=8" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=8">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=8">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=9">
+<link rel="icon" href="favicon.ico?v=9" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=9">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=9">
 
 <!-- Windows -->
 <meta name="msapplication-TileColor" content="#0F6E5C">
@@ -304,6 +304,44 @@
   .susp-block .tt{font-family:"Archivo",sans-serif;font-weight:800;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--blood);margin-bottom:2px}
   .susp-block .ms{font-size:14px;color:#5E1A1D;line-height:1.45}
 
+  .sec-count{
+    min-width:26px; text-align:center; font-size:12px; font-weight:700;
+    color:var(--ink-soft); background:var(--surface-2); border-radius:8px; padding:5px 8px;
+    flex-shrink:0;
+  }
+
+  /* Filtro de estado (procesando / no disponibles) */
+  .estado-filtro{display:flex; gap:7px; margin:0 0 10px; flex-wrap:wrap}
+  .estado-filtro:empty{display:none}
+  .seg{
+    padding:8px 15px; border-radius:20px; font-size:13px; font-weight:600;
+    background:var(--surface-2); color:var(--ink-soft); border:1.5px solid transparent;
+  }
+  .seg.on{background:var(--primary); color:#fff; border-color:var(--primary)}
+
+  /* Separador entre procesando y no disponibles en la lista */
+  .sep-susp{
+    display:flex; align-items:center; gap:11px; margin:20px 2px 12px;
+    color:var(--blood); font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  }
+  .sep-susp::before, .sep-susp::after{content:""; flex:1; height:1px; background:color-mix(in srgb, var(--blood) 28%, transparent)}
+  .sep-susp svg{width:15px; height:15px}
+
+  /* Atajos de disponibilidad */
+  .atajo-row{display:flex; flex-direction:column; gap:8px; margin:0 0 12px}
+  .atajo{
+    display:flex; align-items:center; gap:9px; width:100%; padding:13px 14px;
+    border-radius:12px; border:1.5px solid color-mix(in srgb, var(--blood) 35%, transparent);
+    background:var(--danger-tint, #FBEAEA); color:var(--blood);
+    font-weight:700; font-size:14px; text-align:left;
+  }
+  .atajo:active{transform:scale(.99)}
+  .atajo svg{width:18px; height:18px; flex-shrink:0}
+  .atajo.ok{
+    border-color:color-mix(in srgb, var(--ok, #1C8A57) 35%, transparent);
+    background:#E4F3EB; color:var(--ok, #1C8A57);
+  }
+
   /* Selector de disponibilidad */
   .disp-lista{max-height:300px;overflow-y:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:var(--r-sm);padding:4px}
   .disp-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;user-select:none}
@@ -459,6 +497,22 @@
   .lock-ic{width:56px; height:56px; border-radius:16px; background:var(--primary-tint); color:var(--primary); display:grid; place-items:center; margin:4px auto 14px}
   .lock-ic svg{width:28px;height:28px}
 
+  /* Pantalla de carga inicial */
+  .splash{
+    position:fixed; inset:0; z-index:500; background:var(--paper);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+    transition:opacity .35s ease, visibility .35s ease;
+  }
+  .splash.oculto{opacity:0; visibility:hidden; pointer-events:none}
+  .splash-logo img{border-radius:18px; box-shadow:0 6px 24px rgba(19,34,30,.14)}
+  .splash .spinner{
+    width:38px; height:38px; border-radius:50%;
+    border:3.5px solid var(--line-strong); border-top-color:var(--primary);
+    animation:girar .8s linear infinite;
+  }
+  @keyframes girar{ to{ transform:rotate(360deg) } }
+  .splash-txt{font-size:13.5px; color:var(--ink-soft); font-weight:600; letter-spacing:.02em}
+
   .toast{
     position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom) + 22px); transform:translateX(-50%) translateY(20px);
     background:var(--ink); color:#fff; padding:12px 20px; border-radius:30px; font-size:13.5px; font-weight:600;
@@ -495,6 +549,16 @@
 </style>
 </head>
 <body>
+
+<!-- Pantalla de carga: se muestra hasta que la app pinta el contenido -->
+<div id="splash" class="splash">
+  <div class="splash-logo">
+    <img src="icon-192.png?v=9" alt="" width="76" height="76"
+         onerror="this.style.display='none'">
+  </div>
+  <div class="spinner" aria-label="Cargando"></div>
+  <div class="splash-txt">Cargando portafolio…</div>
+</div>
 
 <!-- ====================== HEADER ====================== -->
 <header class="top">
@@ -544,6 +608,7 @@
       <input id="searchInput" type="search" placeholder="Buscar prueba, código CUPS…" autocomplete="off" enterkeyhint="search">
       <button class="clear" id="clearBtn" aria-label="Limpiar">×</button>
     </div>
+    <div class="estado-filtro" id="estadoFiltro"></div>
     <div class="filters" id="filters"></div>
   </div>
 
@@ -673,10 +738,12 @@ let destacadosEdit = [];
 let tubosEdit = [];
 let labsEdit = [];
 let suspEdit = {};
+let seccionesEdit = [];
 let modoInicioEdit = "todos";
 let nivel = null;   // null · "lab" · "admin"  (admin incluye todo lo de lab)
 function puede(min){ return nivel==="admin" || (min==="lab" && nivel==="lab"); }
 let filtroSeccion = "Todos";
+let filtroEstado = "todas";   // todas | procesando | suspendidas
 let termino = "";
 let accionTrasLogin = null;
 let editandoId = null;
@@ -700,8 +767,12 @@ async function init(){
   cargarLocal();
   aplicarCfg();
   render();
+  // Si ya había datos guardados, quitamos el spinner de inmediato.
+  // Si no (primera vez / caché vacía), lo dejamos girando hasta que lleguen.
+  if(pruebas.length) ocultarSplash();
 
   if(!USA_FIREBASE){
+    ocultarSplash();
     flag('Modo local — configura Firebase en el código para ver la info "en vivo" en todos los servicios.');
     return;
   }
@@ -767,6 +838,7 @@ function escucharFirebase(){
     pruebas = s.docs.map(d=>({id:d.id, ...d.data()}));
     store.set("lab_pruebas", pruebas);        // queda listo para la próxima apertura
     render();
+    ocultarSplash();
   }, err=>{ console.error(err); flag("Sin conexión — se muestra la última información guardada."); });
 
   db.collection("movimientos").orderBy("fecha","desc").limit(300).onSnapshot(s=>{
@@ -801,6 +873,15 @@ function flag(msg){
   const el = document.getElementById("modeFlag");
   if(!msg){ el.innerHTML=""; return; }
   el.innerHTML = `<div class="mode-flag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span>${esc(msg)}</span></div>`;
+}
+
+/* Oculta la pantalla de carga una vez que ya hay algo en pantalla */
+let splashFuera = false;
+function ocultarSplash(){
+  if(splashFuera) return;
+  splashFuera = true;
+  const sp = document.getElementById("splash");
+  if(sp){ sp.classList.add("oculto"); setTimeout(()=>sp.remove(), 400); }
 }
 
 /* ====================== RENDER ====================== */
@@ -894,10 +975,38 @@ function renderSangre(){
   document.getElementById("bloodMeta").innerHTML = `<span>${t}</span>`;
 }
 
-function secciones(){ return ["Todos", ...Array.from(new Set(pruebas.map(p=>p.seccion).filter(Boolean))).sort()]; }
+function secciones(){ return ["Todos", ...seccionesActuales()]; }
+function seccionesActuales(){
+  const usadas = new Set(pruebas.map(p=>p.seccion).filter(Boolean));
+  (cfg.secciones || []).forEach(x=>usadas.add(x));   // incluye las creadas aunque estén vacías
+  return Array.from(usadas).sort((a,b)=>a.localeCompare(b));
+}
 function renderFiltros(){
   const cont = document.getElementById("filters");
   cont.innerHTML = secciones().map(s=>`<button class="chip ${s===filtroSeccion?'active':''}" data-sec="${esc(s)}">${esc(s)}</button>`).join("");
+  renderEstadoFiltro();
+}
+
+function renderEstadoFiltro(){
+  const cont = document.getElementById("estadoFiltro");
+  if(!cont) return;
+  const nSusp = pruebas.filter(p=>p.suspendida).length;
+  // Solo tiene sentido mostrarlo si hay al menos una prueba suspendida
+  if(!nSusp){ cont.innerHTML = ""; return; }
+  const ops = [
+    ["todas", "Todas"],
+    ["procesando", "Procesando"],
+    ["suspendidas", `No disponibles (${nSusp})`]
+  ];
+  cont.innerHTML = ops.map(([v,txt])=>
+    `<button class="seg ${filtroEstado===v?'on':''}" onclick="setEstado('${v}')">${esc(txt)}</button>`
+  ).join("");
+}
+
+function setEstado(v){
+  filtroEstado = v;
+  renderEstadoFiltro();
+  renderLista();
 }
 
 // Normaliza: quita tildes/diacríticos y pasa a minúscula
@@ -908,9 +1017,16 @@ function filtradas(){
   const q = normalizar(termino.trim());
   return pruebas.filter(p=>{
     if(filtroSeccion!=="Todos" && p.seccion!==filtroSeccion) return false;
+    if(filtroEstado==="procesando" && p.suspendida) return false;
+    if(filtroEstado==="suspendidas" && !p.suspendida) return false;
     if(!q) return true;
     return normalizar([p.nombre,p.cups,p.sinonimos,p.seccion].filter(Boolean).join(" ")).includes(q);
-  }).sort((a,b)=>(a.nombre||"").localeCompare(b.nombre||""));
+  }).sort((a,b)=>{
+    // Primero las que se están procesando; las suspendidas van al final.
+    const sa = a.suspendida ? 1 : 0, sb = b.suspendida ? 1 : 0;
+    if(sa !== sb) return sa - sb;
+    return (a.nombre||"").localeCompare(b.nombre||"");
+  });
 }
 
 function renderLista(){
@@ -973,6 +1089,20 @@ function renderLista(){
       <div class="test-badges">${badges}</div>
     </button>`;
   }).join("");
+
+  // Separador visual: si en la vista aparecen ambos grupos, marcar dónde empiezan las no disponibles
+  if(filtroEstado === "todas"){
+    const idx = res.findIndex(p=>p.suspendida);
+    if(idx > 0){
+      const items = list.children;
+      if(items[idx]){
+        const sep = document.createElement("div");
+        sep.className = "sep-susp";
+        sep.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg> No disponibles temporalmente`;
+        list.insertBefore(sep, items[idx]);
+      }
+    }
+  }
 }
 
 /* ====================== DETALLE ====================== */
@@ -1160,7 +1290,12 @@ function renderCfg(){
   const b = document.getElementById("cfgBody");
   if(cfgTab==="pruebas"){ b.innerHTML = viewPruebas(); renderAdmLista(); }
   else if(cfgTab==="sangre") b.innerHTML = viewSangre();
-  else { b.innerHTML = viewAjustes(); renderServiciosBox(); renderDestacadosBox(); renderTubosBox(); renderLabsBox(); renderDispBox(); }
+  else {
+    seccionesEdit = seccionesActuales().map(n => ({ n, orig:n }));
+    b.innerHTML = viewAjustes();
+    renderServiciosBox(); renderDestacadosBox(); renderTubosBox();
+    renderLabsBox(); renderSeccionesBox(); renderDispBox();
+  }
 }
 
 /* --- Pestaña Pruebas --- */
@@ -1541,6 +1676,10 @@ function viewAjustes(){
     <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 11px">Laboratorios a los que se remiten pruebas. Si renombras uno, el cambio se aplica a las pruebas que lo tenían.</p>
     <div id="labsBox"></div>
     <div class="divider"></div>
+    <div class="sec-label">Áreas o secciones</div>
+    <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 11px">Renombra un área y el cambio se aplica a todas sus pruebas. Puedes crear áreas nuevas; para mover una prueba a otra, edita la prueba.</p>
+    <div id="seccionesBox"></div>
+    <div class="divider"></div>
     <div class="sec-label">Disponibilidad de pruebas</div>
     <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 11px">Marca las pruebas que <b>no</b> se están procesando. Los servicios verán un aviso al buscarlas.</p>
     <div id="dispBox"></div>
@@ -1581,6 +1720,39 @@ function renderLabsBox(){
        <div class="hint" style="margin-top:8px">No olvides <b>Guardar ajustes</b>.</div>`;
 }
 
+function renderSeccionesBox(){
+  const box = document.getElementById("seccionesBox");
+  if(!box) return;
+  // cuántas pruebas hay en cada sección (para avisar)
+  const cuenta = {};
+  pruebas.forEach(p=>{ if(p.seccion) cuenta[p.seccion] = (cuenta[p.seccion]||0)+1; });
+  box.innerHTML = (seccionesEdit.length
+    ? seccionesEdit.map((S,i)=>{
+        const n = S.orig ? (cuenta[S.orig]||0) : 0;
+        return `<div class="tubo-row">
+          <input type="text" value="${esc(S.n||'')}" placeholder="Nombre del área"
+                 oninput="seccionesEdit[${i}].n=this.value">
+          <span class="sec-count">${n}</span>
+          <button class="icon-btn del" onclick="quitarSeccion(${i})" title="Quitar de la lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
+        </div>`;
+      }).join("")
+    : '<p style="font-size:12.5px;color:var(--ink-faint);margin:0 0 10px">Aún no hay áreas.</p>')
+    + `<button class="btn ghost" onclick="seccionesEdit.push({n:'',orig:null});renderSeccionesBox()" style="margin-top:11px">
+         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Agregar área</button>
+       <div class="hint" style="margin-top:8px">El número indica cuántas pruebas hay en cada área. No olvides <b>Guardar ajustes</b>.</div>`;
+}
+
+function quitarSeccion(i){
+  const S = seccionesEdit[i];
+  const cuenta = pruebas.filter(p=>p.seccion===S.orig).length;
+  if(S.orig && cuenta > 0){
+    toast(`"${S.orig}" tiene ${cuenta} prueba${cuenta===1?'':'s'}; muévelas antes de quitarla`, true);
+    return;
+  }
+  seccionesEdit.splice(i,1);
+  renderSeccionesBox();
+}
+
 /* ---------- Disponibilidad (suspensión por bloques) ---------- */
 let dispBusca = "", dispSeccion = "Todas", dispTipo = "todos";
 function renderDispBox(){
@@ -1606,9 +1778,19 @@ function renderDispBox(){
         <option value="susp" ${dispTipo==='susp'?'selected':''}>Solo las suspendidas</option>
       </select>
     </div>
+    <div class="atajo-row">
+      <button class="atajo" onclick="atajoRemitidas(true)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+        Suspender todas las remitidas
+      </button>
+      <button class="atajo ok" onclick="atajoRemitidas(false)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+        Reactivar todas las remitidas
+      </button>
+    </div>
     <div class="btn-row" style="margin:0 0 9px">
-      <button class="btn ghost" style="padding:10px;font-size:13px" onclick="marcarVisibles(true)">Suspender visibles</button>
-      <button class="btn ghost" style="padding:10px;font-size:13px" onclick="marcarVisibles(false)">Reactivar visibles</button>
+      <button class="btn ghost" style="padding:10px;font-size:13px" onclick="marcarVisibles(true)">Suspender las visibles</button>
+      <button class="btn ghost" style="padding:10px;font-size:13px" onclick="marcarVisibles(false)">Reactivar las visibles</button>
     </div>
     <div class="form-row"><label>Motivo para las que suspendas ahora (opcional)</label>
       <input class="inp" id="dispMotivo" placeholder="Ej. Sin contrato vigente con el laboratorio"></div>
@@ -1651,6 +1833,12 @@ function alternarSusp(id){
   const actual = (id in suspEdit) ? suspEdit[id] : !!p.suspendida;
   suspEdit[id] = !actual;
   renderDispLista();
+}
+function atajoRemitidas(valor){
+  pruebas.forEach(p=>{ if(p.remite) suspEdit[p.id] = valor; });
+  renderDispLista();
+  toast(valor ? "Todas las remitidas quedaron marcadas como no disponibles"
+              : "Todas las remitidas quedaron marcadas como disponibles");
 }
 function marcarVisibles(valor){
   dispFiltradas().forEach(p=>{ suspEdit[p.id] = valor; });
@@ -1791,6 +1979,12 @@ async function guardarAjustes(){
   labFinales.forEach(L=>{ if(L.orig && L.orig !== L.n.trim()) renLab[L.orig] = L.n.trim(); });
   cfg.laboratorios = labFinales.map(L=>L.n.trim());
 
+  // --- Áreas / secciones: renombres y creación ---
+  const secFinales = seccionesEdit.filter(S=>(S.n||"").trim());
+  const renSec = {};
+  secFinales.forEach(S=>{ if(S.orig && S.orig !== S.n.trim()) renSec[S.orig] = S.n.trim(); });
+  cfg.secciones = Array.from(new Set(secFinales.map(S=>S.n.trim())));
+
   const tubFinales = tubosEdit.filter(t=>(t.n||"").trim());
   const renTubo = {};       // nombre anterior -> {n, c}
   tubFinales.forEach(t=>{ if(t.orig) renTubo[t.orig] = {n:t.n.trim(), c:t.c}; });
@@ -1804,18 +1998,19 @@ async function guardarAjustes(){
   if(USA_FIREBASE){ try{ await db.collection("config").doc("general").set(cfg); }catch(e){ toast("Error al guardar", true); return; } }
   else{ guardarLocal(); }
 
-  const tocadas = await propagarCambios(renServ, servEliminados, renTubo, renLab);
+  const tocadas = await propagarCambios(renServ, servEliminados, renTubo, renLab, renSec);
   aplicarCfg();
   toast(tocadas ? `Ajustes guardados · ${tocadas} ${tocadas===1?"prueba actualizada":"pruebas actualizadas"}` : "Ajustes guardados");
 }
 
 /* Aplica a las pruebas los cambios hechos en Ajustes:
    servicios renombrados o eliminados, y tubos renombrados o con nuevo color. */
-async function propagarCambios(renServ, servEliminados, renTubo, renLab){
+async function propagarCambios(renServ, servEliminados, renTubo, renLab, renSec){
   const hayServ = Object.keys(renServ).length || servEliminados.length;
   const hayTubo = Object.keys(renTubo).length;
   const hayLab  = renLab && Object.keys(renLab).length;
-  if(!hayServ && !hayTubo && !hayLab) return 0;
+  const haySec  = renSec && Object.keys(renSec).length;
+  if(!hayServ && !hayTubo && !hayLab && !haySec) return 0;
 
   const cambios = [];   // {id, data}
   pruebas.forEach(p=>{
@@ -1838,6 +2033,9 @@ async function propagarCambios(renServ, servEliminados, renTubo, renLab){
 
     if(hayLab && p.laboratorioRef && renLab[p.laboratorioRef])
       upd.laboratorioRef = renLab[p.laboratorioRef];
+
+    if(haySec && p.seccion && renSec[p.seccion])
+      upd.seccion = renSec[p.seccion];
 
     if(Object.keys(upd).length) cambios.push({id:p.id, data:upd});
   });
@@ -2024,6 +2222,9 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape" && sheetActual) ce
     mostrar();
   }
 })();
+
+/* Si algo falla en el arranque, el spinner no se queda pegado */
+setTimeout(()=>{ try{ ocultarSplash(); }catch(e){} }, 5000);
 
 /* ---------- Service worker (funciona sin conexión) ---------- */
 if("serviceWorker" in navigator){
