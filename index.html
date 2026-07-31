@@ -32,17 +32,17 @@
 
 <style>
   :root{
-    --paper:#F4F7F5; --surface:#FFFFFF; --surface-2:#FAFCFB;
-    --ink:#152420; --ink-soft:#5C6E67; --ink-faint:#8B9A93;
-    --line:#E2EAE6; --line-strong:#CDD9D3;
-    --primary:#0F6E5C; --primary-deep:#0A5245; --primary-tint:#E6F1ED;
+    --paper:#F0F8FA; --surface:#FFFFFF; --surface-2:#F6FBFC;
+    --ink:#0E2830; --ink-soft:#4E6A72; --ink-faint:#8199A0;
+    --line:#DCEAEE; --line-strong:#C3DBE1;
+    --primary:#077F98; --primary-deep:#0A6E82; --primary-tint:#DFF3F7;
     --accent:#0CC0DF; --accent-deep:#0097B2; --accent-mid:#049FBB;
     --blood:#B0242A; --blood-tint:#FBEAEA;
     --ok:#1C8A57; --ok-tint:#E4F3EB;
     --warn:#B77400; --warn-tint:#FBF0DC;
-    --none:#94A29C; --none-tint:#EEF2F0;
-    --shadow:0 1px 2px rgba(21,36,32,.05), 0 8px 24px rgba(21,36,32,.06);
-    --shadow-lg:0 12px 40px rgba(21,36,32,.16);
+    --none:#8398A0; --none-tint:#EBF2F4;
+    --shadow:0 1px 2px rgba(14,40,48,.05), 0 8px 24px rgba(14,40,48,.06);
+    --shadow-lg:0 12px 40px rgba(14,40,48,.16);
     --r:14px; --r-sm:10px; --r-lg:20px;
     --wrap:960px;
   }
@@ -152,14 +152,74 @@
   .search .clear{color:var(--ink-faint); font-size:22px; line-height:1; padding:4px; display:none}
   .search.has-text .clear{display:block}
 
-  .filters{display:flex; gap:7px; overflow-x:auto; padding:2px 0 4px; -webkit-overflow-scrolling:touch; scrollbar-width:none}
-  .filters::-webkit-scrollbar{display:none}
-  .chip{
-    white-space:nowrap; font-size:12.5px; font-weight:600; color:var(--ink-soft);
-    background:var(--surface); border:1px solid var(--line); border-radius:20px;
+  /* Barra de filtros: botón único + chips activos */
+  .filtro-barra{display:flex; align-items:center; gap:8px; padding:2px 0 4px; flex-wrap:wrap}
+  .filtro-btn{
+    display:inline-flex; align-items:center; gap:7px; flex-shrink:0;
+    font-size:13px; font-weight:600; color:var(--ink-soft);
+    background:var(--surface); border:1px solid var(--line-strong); border-radius:11px;
+    padding:8px 13px; transition:all .14s;
+  }
+  .filtro-btn svg{width:16px; height:16px}
+  .filtro-btn.con-filtros{color:var(--primary-deep); border-color:var(--primary); background:var(--primary-tint)}
+  .filtro-btn:active{transform:scale(.97)}
+  .filtro-badge{
+    min-width:18px; height:18px; padding:0 5px; border-radius:9px; display:none; place-items:center;
+    background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+  }
+  .filtro-chips-activos{display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; flex:1}
+  .filtro-chips-activos::-webkit-scrollbar{display:none}
+  .chip-activo{
+    display:inline-flex; align-items:center; gap:5px; white-space:nowrap; flex-shrink:0;
+    font-size:12px; font-weight:600; color:var(--primary-deep);
+    background:var(--primary-tint); border:1px solid transparent; border-radius:16px;
+    padding:5px 8px 5px 11px;
+  }
+  .chip-activo svg{width:13px; height:13px; opacity:.7}
+  .chip-activo:active{opacity:.7}
+
+  /* Panel desplegable de filtros */
+  .filtro-panel{
+    max-height:0; overflow:hidden; opacity:0;
+    transition:max-height .28s ease, opacity .2s ease, margin .28s ease;
+    background:var(--surface); border-radius:var(--r); margin:0;
+  }
+  .filtro-panel.abierto{
+    max-height:70vh; overflow-y:auto; opacity:1; margin:8px 0 4px;
+    border:1px solid var(--line); box-shadow:var(--shadow); padding:6px 4px 4px;
+  }
+  .fp-grupo{padding:10px 14px}
+  .fp-titulo{
+    font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-faint); margin-bottom:9px; display:flex; align-items:center; gap:8px;
+  }
+  .fp-multi{font-weight:600; letter-spacing:0; text-transform:none; font-size:11px; color:var(--ink-faint); opacity:.8}
+  .fp-opts{display:flex; flex-wrap:wrap; gap:7px}
+  .fp-op{
+    font-size:12.5px; font-weight:600; color:var(--ink-soft);
+    background:var(--surface-2); border:1.5px solid transparent; border-radius:18px;
     padding:7px 13px; transition:all .12s;
   }
-  .chip.active{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .fp-op.on{background:var(--primary-tint); border-color:var(--primary); color:var(--primary-deep)}
+  .fp-op:active{transform:scale(.97)}
+  .fp-pie{
+    display:flex; gap:9px; padding:12px 14px 8px; margin-top:2px;
+    border-top:1px solid var(--line); position:sticky; bottom:0; background:var(--surface);
+  }
+  .fp-limpiar{flex:1; padding:11px; border-radius:11px; font-weight:600; font-size:13.5px;
+    color:var(--ink-soft); background:var(--surface-2)}
+  .fp-listo{flex:1; padding:11px; border-radius:11px; font-weight:700; font-size:13.5px;
+    color:#fff; background:var(--primary)}
+  .fp-listo:active{background:var(--primary-deep)}
+
+  .btn-eliminar{
+    width:100%; margin-top:10px; padding:13px; border-radius:var(--r-sm);
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-weight:700; font-size:14px; color:var(--blood);
+    background:var(--blood-tint); border:1px solid color-mix(in srgb, var(--blood) 30%, transparent);
+  }
+  .btn-eliminar svg{width:18px; height:18px}
+  .btn-eliminar:active{transform:scale(.99); background:color-mix(in srgb, var(--blood) 16%, var(--surface))}
 
   .count-line{font-size:12px; color:var(--ink-faint); padding:2px 2px 10px}
 
@@ -364,6 +424,14 @@
   .tubo-nom{font-weight:700}
   /* Editor de tubos en Ajustes */
   .tubo-row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line)}
+  .orden-btns{display:flex; flex-direction:column; gap:2px; flex-shrink:0}
+  .orden-b{
+    width:26px; height:20px; border-radius:6px; display:grid; place-items:center;
+    background:var(--surface-2); border:1px solid var(--line); color:var(--ink-soft);
+  }
+  .orden-b svg{width:14px; height:14px}
+  .orden-b:disabled{opacity:.3}
+  .orden-b:active:not(:disabled){background:var(--primary-tint); color:var(--primary-deep)}
   .tubo-row:last-of-type{border-bottom:none}
   .tubo-row input[type=color]{width:38px; height:34px; border:1px solid var(--line-strong); border-radius:8px; padding:2px; background:var(--surface); flex-shrink:0; cursor:pointer}
   .tubo-row input[type=text]{flex:1; min-width:0; border:1.5px solid var(--line-strong); border-radius:9px; padding:9px 11px; font-size:13.5px}
@@ -615,8 +683,15 @@
       <input id="searchInput" type="search" placeholder="Buscar prueba, código CUPS…" autocomplete="off" enterkeyhint="search">
       <button class="clear" id="clearBtn" aria-label="Limpiar">×</button>
     </div>
-    <div class="estado-filtro" id="estadoFiltro"></div>
-    <div class="filters" id="filters"></div>
+    <div class="filtro-barra">
+      <button class="filtro-btn" id="filtroBtn" onclick="toggleFiltroPanel()" aria-label="Filtros">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        <span>Filtros</span>
+        <span class="filtro-badge" id="filtroBadge"></span>
+      </button>
+      <div class="filtro-chips-activos" id="filtroActivos"></div>
+    </div>
+    <div class="filtro-panel" id="filtroPanel"></div>
   </div>
 
   <div class="count-line" id="countLine"></div>
@@ -749,8 +824,9 @@ let seccionesEdit = [];
 let modoInicioEdit = "todos";
 let nivel = null;   // null · "lab" · "admin"  (admin incluye todo lo de lab)
 function puede(min){ return nivel==="admin" || (min==="lab" && nivel==="lab"); }
-let filtroSeccion = "Todos";
-let filtroEstado = "todas";   // todas | procesando | suspendidas
+let filtroSecciones = new Set();   // secciones elegidas (vacío = todas)
+let filtroEstado = "todas";        // todas | procesando | suspendidas
+let filtroPanelAbierto = false;
 let termino = "";
 let accionTrasLogin = null;
 let editandoId = null;
@@ -985,35 +1061,126 @@ function renderSangre(){
 
 function secciones(){ return ["Todos", ...seccionesActuales()]; }
 function seccionesActuales(){
+  // Si hay un orden definido en Ajustes, se respeta; las secciones que
+  // aparezcan en pruebas pero no estén listadas se agregan al final (A-Z).
+  const orden = cfg.secciones || [];
+  if(orden.length){
+    const enPruebas = new Set(pruebas.map(p=>p.seccion).filter(Boolean));
+    const extra = [...enPruebas].filter(x=>!orden.includes(x)).sort((a,b)=>a.localeCompare(b));
+    return [...orden.filter(x=>enPruebas.has(x) || true), ...extra];
+  }
+  return seccionesAuto();
+}
+function seccionesAuto(){
   const usadas = new Set(pruebas.map(p=>p.seccion).filter(Boolean));
   (cfg.secciones || []).forEach(x=>usadas.add(x));   // incluye las creadas aunque estén vacías
   return Array.from(usadas).sort((a,b)=>a.localeCompare(b));
 }
-function renderFiltros(){
-  const cont = document.getElementById("filters");
-  cont.innerHTML = secciones().map(s=>`<button class="chip ${s===filtroSeccion?'active':''}" data-sec="${esc(s)}">${esc(s)}</button>`).join("");
-  renderEstadoFiltro();
+// Cuántos filtros hay activos (para el globito del botón)
+function filtrosActivos(){
+  let n = filtroSecciones.size;
+  if(filtroEstado !== "todas") n += 1;
+  return n;
 }
 
-function renderEstadoFiltro(){
-  const cont = document.getElementById("estadoFiltro");
+function renderFiltros(){
+  // El botón: muestra cuántos filtros hay puestos
+  const badge = document.getElementById("filtroBadge");
+  const btn = document.getElementById("filtroBtn");
+  if(badge && btn){
+    const n = filtrosActivos();
+    badge.textContent = n ? n : "";
+    badge.style.display = n ? "grid" : "none";
+    btn.classList.toggle("con-filtros", n>0);
+  }
+  // Los chips activos que se ven al lado del botón
+  renderFiltroActivos();
+  // Si el panel está abierto, redibujarlo
+  if(filtroPanelAbierto) renderFiltroPanel();
+}
+
+function renderFiltroActivos(){
+  const cont = document.getElementById("filtroActivos");
   if(!cont) return;
+  const chips = [];
+  if(filtroEstado === "procesando") chips.push(["estado","Procesando"]);
+  if(filtroEstado === "suspendidas") chips.push(["estado","No disponibles"]);
+  filtroSecciones.forEach(s=> chips.push(["sec:"+s, s]));
+  cont.innerHTML = chips.map(([k,txt])=>
+    `<button class="chip-activo" onclick="quitarFiltro('${esc(k)}')">${esc(txt)}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>`).join("");
+}
+
+function quitarFiltro(k){
+  if(k === "estado") filtroEstado = "todas";
+  else if(k.startsWith("sec:")) filtroSecciones.delete(k.slice(4));
+  renderFiltros();
+  renderLista();
+}
+
+function toggleFiltroPanel(){
+  filtroPanelAbierto = !filtroPanelAbierto;
+  const panel = document.getElementById("filtroPanel");
+  panel.classList.toggle("abierto", filtroPanelAbierto);
+  if(filtroPanelAbierto) renderFiltroPanel();
+}
+
+function renderFiltroPanel(){
+  const panel = document.getElementById("filtroPanel");
+  if(!panel) return;
   const nSusp = pruebas.filter(p=>p.suspendida).length;
-  // Solo tiene sentido mostrarlo si hay al menos una prueba suspendida
-  if(!nSusp){ cont.innerHTML = ""; return; }
-  const ops = [
-    ["todas", "Todas"],
-    ["procesando", "Procesando"],
-    ["suspendidas", `No disponibles (${nSusp})`]
-  ];
-  cont.innerHTML = ops.map(([v,txt])=>
-    `<button class="seg ${filtroEstado===v?'on':''}" onclick="setEstado('${v}')">${esc(txt)}</button>`
-  ).join("");
+  const secs = seccionesActuales();
+
+  let html = "";
+
+  // Grupo: estado (solo si hay suspendidas)
+  if(nSusp){
+    const ops = [["todas","Todas"],["procesando","Procesando"],["suspendidas",`No disponibles (${nSusp})`]];
+    html += `<div class="fp-grupo">
+      <div class="fp-titulo">Estado</div>
+      <div class="fp-opts">${ops.map(([v,txt])=>
+        `<button class="fp-op ${filtroEstado===v?'on':''}" onclick="setEstado('${v}')">${esc(txt)}</button>`
+      ).join("")}</div>
+    </div>`;
+  }
+
+  // Grupo: áreas (selección múltiple)
+  if(secs.length){
+    html += `<div class="fp-grupo">
+      <div class="fp-titulo">Áreas o secciones <span class="fp-multi">elige una o varias</span></div>
+      <div class="fp-opts">${secs.map(s=>
+        `<button class="fp-op ${filtroSecciones.has(s)?'on':''}" onclick="toggleSeccion('${esc(s)}')">${esc(s)}</button>`
+      ).join("")}</div>
+    </div>`;
+  }
+
+  // Pie: limpiar / listo
+  html += `<div class="fp-pie">
+    <button class="fp-limpiar" onclick="limpiarFiltros()">Limpiar filtros</button>
+    <button class="fp-listo" onclick="toggleFiltroPanel()">Listo</button>
+  </div>`;
+
+  panel.innerHTML = html;
 }
 
 function setEstado(v){
   filtroEstado = v;
-  renderEstadoFiltro();
+  renderFiltros();
+  renderLista();
+}
+
+function toggleSeccion(s){
+  if(filtroSecciones.has(s)) filtroSecciones.delete(s);
+  else filtroSecciones.add(s);
+  renderFiltros();
+  renderLista();
+}
+
+function limpiarFiltros(){
+  filtroSecciones.clear();
+  filtroEstado = "todas";
+  renderFiltros();
   renderLista();
 }
 
@@ -1024,7 +1191,7 @@ function normalizar(s){
 function filtradas(){
   const q = normalizar(termino.trim());
   return pruebas.filter(p=>{
-    if(filtroSeccion!=="Todos" && p.seccion!==filtroSeccion) return false;
+    if(filtroSecciones.size && !filtroSecciones.has(p.seccion)) return false;
     if(filtroEstado==="procesando" && p.suspendida) return false;
     if(filtroEstado==="suspendidas" && !p.suspendida) return false;
     if(!q) return true;
@@ -1042,7 +1209,7 @@ function renderLista(){
   let res = filtradas();
 
   // ¿Vista inicial reducida a las pruebas destacadas?
-  const vistaInicial = !termino.trim() && filtroSeccion==="Todos";
+  const vistaInicial = !termino.trim() && filtroSecciones.size===0 && filtroEstado==="todas";
   const modoDestacados = (cfg.modoInicio === "destacados");
   const destacadosOn = vistaInicial && modoDestacados;
   const total = pruebas.length;
@@ -1461,6 +1628,10 @@ function editarPrueba(id, origen){
       <button class="btn ghost" onclick="volverDeEdicion()">Volver</button>
       <button class="btn" onclick="guardarPrueba()">Guardar</button>
     </div>
+    ${editandoId ? `<button class="btn-eliminar" onclick="eliminarPrueba()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>
+      Eliminar esta prueba
+    </button>` : ""}
     <div class="hint" style="text-align:center;margin-top:12px">Los campos en blanco no se muestran en el detalle.</div>`;
   actualizarPistaTiempo();
   actualizarBotonTubo();
@@ -1470,6 +1641,31 @@ function editarPrueba(id, origen){
 function volverDeEdicion(){
   if(edicionOrigen === "detalle" && editandoId){ verDetalle(editandoId); }
   else{ cfgTab='pruebas'; renderCfg(); }
+}
+
+// Elimina la prueba que se está editando, pidiendo confirmación antes.
+async function eliminarPrueba(){
+  if(!editandoId) return;
+  const p = pruebas.find(x=>x.id===editandoId);
+  const nombre = p ? p.nombre : "esta prueba";
+  if(!confirm(`¿Eliminar "${nombre}"?\n\nEsta acción no se puede deshacer.`)) return;
+
+  const id = editandoId;
+  if(USA_FIREBASE){
+    try{ await db.collection("pruebas").doc(id).delete(); }
+    catch(e){ console.error(e); toast("No se pudo eliminar", true); return; }
+  }else{
+    const i = pruebas.findIndex(x=>x.id===id);
+    if(i>=0) pruebas.splice(i,1);
+    guardarLocal();
+  }
+  editandoId = null;
+  toast(`"${nombre}" fue eliminada`);
+  // cerrar la hoja de detalle si venía de ahí (ya no existe la prueba)
+  const sheet = document.getElementById("detailSheet");
+  if(sheet) sheet.classList.remove("on");
+  cfgTab='pruebas'; renderCfg();
+  renderLista();
 }
 
 /* --- Hasta 3 tubos por prueba --- */
@@ -1792,6 +1988,7 @@ function renderLabsBox(){
   if(!box) return;
   box.innerHTML = (labsEdit.length
     ? labsEdit.map((L,i)=>`<div class="tubo-row">
+        ${flechasOrden('labs',i,labsEdit.length)}
         <input type="text" value="${esc(L.n||'')}" placeholder="Nombre del laboratorio" oninput="labsEdit[${i}].n=this.value">
         <button class="icon-btn del" onclick="labsEdit.splice(${i},1);renderLabsBox()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
       </div>`).join("")
@@ -1811,6 +2008,7 @@ function renderSeccionesBox(){
     ? seccionesEdit.map((S,i)=>{
         const n = S.orig ? (cuenta[S.orig]||0) : 0;
         return `<div class="tubo-row">
+          ${flechasOrden('secciones',i,seccionesEdit.length)}
           <input type="text" value="${esc(S.n||'')}" placeholder="Nombre del área"
                  oninput="seccionesEdit[${i}].n=this.value">
           <span class="sec-count">${n}</span>
@@ -1964,6 +2162,7 @@ function renderTubosBox(){
   if(!box) return;
   box.innerHTML = (tubosEdit.length
     ? tubosEdit.map((t,i)=>`<div class="tubo-row">
+        ${flechasOrden('tubos',i,tubosEdit.length)}
         <input type="color" value="${esc(t.c||'#8E5BC7')}" oninput="editarTubo(${i},'c',this.value)">
         <input type="text" value="${esc(t.n||'')}" placeholder="Nombre del recipiente" oninput="editarTubo(${i},'n',this.value)">
         <button class="icon-btn del" onclick="quitarTubo(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
@@ -1976,6 +2175,36 @@ function renderTubosBox(){
 function editarTubo(i, campo, val){ if(tubosEdit[i]) tubosEdit[i][campo] = val; }
 function agregarTubo(){ tubosEdit.push({n:"", c:"#8E5BC7"}); renderTubosBox(); }
 function quitarTubo(i){ tubosEdit.splice(i,1); renderTubosBox(); }
+
+/* Mueve un elemento de una lista hacia arriba (dir=-1) o abajo (dir=+1)
+   y vuelve a dibujar la caja correspondiente. Sirve para servicios,
+   tubos, laboratorios y áreas: así se ordenan como se verán al configurar. */
+function moverItem(cual, i, dir){
+  const mapa = {
+    servicios:[serviciosEdit, renderServiciosBox],
+    tubos:[tubosEdit, renderTubosBox],
+    labs:[labsEdit, renderLabsBox],
+    secciones:[seccionesEdit, renderSeccionesBox]
+  };
+  const par = mapa[cual]; if(!par) return;
+  const [arr, render] = par;
+  const j = i + dir;
+  if(j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];   // intercambiar
+  render();
+}
+
+// Botones de subir/bajar para una fila (reutilizable)
+function flechasOrden(cual, i, total){
+  return `<div class="orden-btns">
+    <button class="orden-b" ${i===0?'disabled':''} onclick="moverItem('${cual}',${i},-1)" aria-label="Subir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+    </button>
+    <button class="orden-b" ${i===total-1?'disabled':''} onclick="moverItem('${cual}',${i},1)" aria-label="Bajar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+  </div>`;
+}
 
 function alternarModoInicio(el){
   el.classList.toggle("on");
@@ -2027,6 +2256,7 @@ function renderServiciosBox(){
   if(!box) return;
   box.innerHTML = (serviciosEdit.length
     ? serviciosEdit.map((sv,i)=>`<div class="tubo-row">
+        ${flechasOrden('servicios',i,serviciosEdit.length)}
         <input type="text" value="${esc(sv.n||'')}" placeholder="Nombre del servicio" oninput="editarServicio(${i}, this.value)">
         <button class="icon-btn del" onclick="quitarServicio(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
       </div>`).join("")
@@ -2064,7 +2294,8 @@ async function guardarAjustes(){
   const secFinales = seccionesEdit.filter(S=>(S.n||"").trim());
   const renSec = {};
   secFinales.forEach(S=>{ if(S.orig && S.orig !== S.n.trim()) renSec[S.orig] = S.n.trim(); });
-  cfg.secciones = Array.from(new Set(secFinales.map(S=>S.n.trim())));
+  // conserva el orden en que quedaron en la lista (sin alfabetizar)
+  cfg.secciones = [...new Set(secFinales.map(S=>S.n.trim()))];
 
   const tubFinales = tubosEdit.filter(t=>(t.n||"").trim());
   const renTubo = {};       // nombre anterior -> {n, c}
@@ -2223,11 +2454,18 @@ function tubosDe(p){
 /* Evita que la app "brinque" cuando se abre el teclado sobre el buscador:
    lo sube al tope (donde ya queda fijo, igual que al hacer scroll) de una
    sola vez, en lugar de dejar que el navegador lo desplace a medias. */
+// ¿Es un dispositivo con teclado en pantalla? (móvil/tablet táctil)
+function esTactil(){
+  return window.matchMedia("(pointer:coarse)").matches || 'ontouchstart' in window;
+}
+// Sube la vista hasta el buscador. Solo en táctil, porque en PC el teclado
+// no tapa nada y hacer scroll causa el brinco de la info de arriba.
 function fijarBuscador(){
+  if(!esTactil()) return;               // en computador no se toca el scroll
   const wrap = document.getElementById("searchWrap");
   if(!wrap) return;
   const top = wrap.getBoundingClientRect().top;
-  if(top > 0) window.scrollBy({top, left:0, behavior:"auto"});
+  if(top > 1) window.scrollBy({top, left:0, behavior:"auto"});
 }
 
 /* ====================== EVENTOS ====================== */
@@ -2235,7 +2473,8 @@ document.getElementById("searchInput").addEventListener("input", e=>{
   termino = e.target.value;
   document.getElementById("searchBox").classList.toggle("has-text", !!termino);
   renderLista();
-  fijarBuscador();
+  // Nota: NO se fija el scroll en cada tecla. Eso causaba el brinco.
+  // El buscador es sticky, así que se queda arriba solo.
 });
 document.getElementById("searchInput").addEventListener("focus", ()=>{
   fijarBuscador();
@@ -2252,9 +2491,12 @@ document.getElementById("clearBtn").addEventListener("click", ()=>{
   document.getElementById("searchBox").classList.remove("has-text");
   renderLista(); document.getElementById("searchInput").focus();
 });
-document.getElementById("filters").addEventListener("click", e=>{
-  const c = e.target.closest(".chip"); if(!c) return;
-  filtroSeccion = c.dataset.sec; renderFiltros(); renderLista();
+// Cerrar el panel de filtros al tocar fuera de él
+document.addEventListener("click", e=>{
+  if(!filtroPanelAbierto) return;
+  if(e.target.closest("#filtroPanel") || e.target.closest("#filtroBtn")) return;
+  filtroPanelAbierto = false;
+  document.getElementById("filtroPanel").classList.remove("abierto");
 });
 document.getElementById("list").addEventListener("click", e=>{
   const t = e.target.closest(".test"); if(t) verDetalle(t.dataset.id);
