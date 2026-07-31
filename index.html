@@ -8,7 +8,7 @@
 
 <!-- ===== PWA ===== -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0F6E5C">
+<meta name="theme-color" content="#0CC0DF">
 <meta name="application-name" content="Portafolio Lab">
 <meta name="mobile-web-app-capable" content="yes">
 
@@ -23,7 +23,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=9">
 
 <!-- Windows -->
-<meta name="msapplication-TileColor" content="#0F6E5C">
+<meta name="msapplication-TileColor" content="#0CC0DF">
 <meta name="msapplication-TileImage" content="icon-144.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,7 +35,7 @@
     --paper:#F4F7F5; --surface:#FFFFFF; --surface-2:#FAFCFB;
     --ink:#152420; --ink-soft:#5C6E67; --ink-faint:#8B9A93;
     --line:#E2EAE6; --line-strong:#CDD9D3;
-    --primary:#0F6E5C; --primary-deep:#0A5245; --primary-tint:#E6F1ED;
+    --primary:#0CC0DF; --primary-deep:#0097B2; --primary-tint:#E7F9FC;
     --blood:#B0242A; --blood-tint:#FBEAEA;
     --ok:#1C8A57; --ok-tint:#E4F3EB;
     --warn:#B77400; --warn-tint:#FBF0DC;
@@ -356,6 +356,7 @@
 
   /* Tubos con color */
   .tubo-val{display:inline-flex; align-items:center; gap:8px}
+  .tubo-plus{color:var(--ink-faint); font-weight:700}
   .tubo-dot{width:13px; height:13px; border-radius:50%; flex-shrink:0; border:1.5px solid rgba(0,0,0,.14)}
   .tubo-nom{font-weight:700}
   /* Editor de tubos en Ajustes */
@@ -405,6 +406,8 @@
   @media(min-width:640px){.grab{display:none}}
   .sheet-head{position:relative; background:var(--surface); padding:16px 20px 12px; border-bottom:1px solid var(--line); flex-shrink:0}
   .sheet-head .x{position:absolute; top:14px; right:16px; width:34px; height:34px; border-radius:50%; background:var(--surface-2); color:var(--ink-soft); font-size:20px; display:grid; place-items:center; cursor:pointer}
+  .sheet-head .edit-fab{right:58px; background:var(--primary-tint); color:var(--primary-deep)}
+  .sheet-head .edit-fab svg{width:16px; height:16px}
   .sheet-title{font-family:"Archivo",sans-serif; font-weight:800; font-size:19px; line-height:1.18; padding-right:40px; letter-spacing:-.01em}
   .sheet-sub{margin-top:5px; display:flex; gap:8px; flex-wrap:wrap; align-items:center}
   .sheet-body{
@@ -434,6 +437,7 @@
   .cfg-tab.active{color:var(--primary); border-bottom-color:var(--primary); background:var(--primary-tint)}
   .form-row{margin-bottom:13px}
   .form-row label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin-bottom:5px}
+  .tubo-quitar-link{background:none; border:none; padding:0; font-size:12px; font-weight:600; color:var(--blood); text-decoration:underline; cursor:pointer}
   .form-row .hint{font-size:11px; color:var(--ink-faint); font-weight:400; margin-top:4px}
   .inp, .sel, .txt{
     width:100%; border:1.5px solid var(--line-strong); border-radius:var(--r-sm);
@@ -566,7 +570,7 @@
     <div class="top-row">
       <div class="logo" id="logoBox">
         <!-- Logo placeholder (reemplazable desde Ajustes) -->
-        <svg viewBox="0 0 48 48" fill="none"><path d="M24 6v36M6 24h36" stroke="#0F6E5C" stroke-width="6" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 48 48" fill="none"><path d="M24 6v36M6 24h36" stroke="#0CC0DF" stroke-width="6" stroke-linecap="round"/></svg>
       </div>
       <div class="titles">
         <p class="eyebrow">Portafolio de pruebas</p>
@@ -747,6 +751,7 @@ let filtroEstado = "todas";   // todas | procesando | suspendidas
 let termino = "";
 let accionTrasLogin = null;
 let editandoId = null;
+let edicionOrigen = "admin"; // "admin" · "detalle" (edición rápida abierta desde el detalle de una prueba)
 
 /* almacenamiento local seguro (envuelto en try/catch) */
 const store = {
@@ -891,7 +896,7 @@ function aplicarCfg(){
   document.getElementById("hName").textContent = cfg.nombre || "Laboratorio Clínico";
   document.getElementById("hSub").textContent  = cfg.sub || "";
   const box = document.getElementById("logoBox");
-  if(cfg.logoUrl){ box.innerHTML = `<img src="${esc(cfg.logoUrl)}" alt="Logo" onerror="this.parentNode.innerHTML='<svg viewBox=\\'0 0 48 48\\' fill=\\'none\\'><path d=\\'M24 6v36M6 24h36\\' stroke=\\'%230F6E5C\\' stroke-width=\\'6\\' stroke-linecap=\\'round\\'/></svg>'">`; }
+  if(cfg.logoUrl){ box.innerHTML = `<img src="${esc(cfg.logoUrl)}" alt="Logo" onerror="this.parentNode.innerHTML='<svg viewBox=\\'0 0 48 48\\' fill=\\'none\\'><path d=\\'M24 6v36M6 24h36\\' stroke=\\'%230CC0DF\\' stroke-width=\\'6\\' stroke-linecap=\\'round\\'/></svg>'">`; }
   renderNota();
 }
 
@@ -1231,6 +1236,7 @@ function verDetalle(id){
     <div class="grab"></div>
     <div class="sheet-head">
       <button class="x" onclick="cerrar()">×</button>
+      ${nivel==="admin" ? `<button class="x edit-fab" onclick="editarPrueba('${p.id}','detalle')" title="Editar esta prueba"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>` : ""}
       <div class="sheet-title">${esc(p.nombre)}</div>
       <div class="sheet-sub">${sub}</div>
     </div>
@@ -1241,10 +1247,13 @@ function verDetalle(id){
         <div class="ms">${esc(p.motivoSuspension || "Esta prueba no se está procesando temporalmente. Consulta con el laboratorio antes de tomar la muestra.")}</div></div>
       </div>`:""}
       ${p.cups?`<div class="field"><div class="field-ic">${IC.cups}</div><div class="field-body"><div class="field-label">Código CUPS</div><div class="field-val mono">${esc(p.cups)}</div></div></div>`:""}
-      ${fila(IC.tubo, "Tubo / recipiente", p.tubo
-          ? `<span class="tubo-val">${p.tuboColor?`<span class="tubo-dot" style="background:${esc(p.tuboColor)}"></span>`:""}<span class="tubo-nom" ${p.tuboColor?`style="color:${esc(p.tuboColor)}"`:""}>${esc(p.tubo)}</span></span>`
-            + (p.volumen?` · <span style="color:var(--ink-soft)">${esc(p.volumen)}</span>`:"")
-          : "")}
+      ${(()=>{
+        const ts = tubosDe(p);
+        if(!ts.length) return "";
+        const val = ts.map(t=>`<span class="tubo-val">${t.c?`<span class="tubo-dot" style="background:${esc(t.c)}"></span>`:""}<span class="tubo-nom" ${t.c?`style="color:${esc(t.c)}"`:""}>${esc(t.n)}</span></span>`).join(' <span class="tubo-plus">+</span> ')
+          + (p.volumen?` · <span style="color:var(--ink-soft)">${esc(p.volumen)}</span>`:"");
+        return fila(IC.tubo, ts.length>1?"Tubos / recipientes":"Tubo / recipiente", val);
+      })()}
       ${consFila}
       ${fila(IC.transporte, "Transporte / tiempo de llegada", esc(p.transporte||""))}
       ${(Array.isArray(p.diasProceso) && p.diasProceso.length) ? "" : fila(IC.resultado, "Tiempo de entrega de resultados", esc(p.tiempoResultado||""))}
@@ -1278,6 +1287,7 @@ function renderPestanas(){
   });
 }
 function abrirConfig(tab){
+  edicionOrigen = "admin"; editandoId = null;
   const tabs = pestanasDisponibles();
   cfgTab = (tab && tabs.includes(tab)) ? tab : tabs[0];
   renderPestanas();
@@ -1340,7 +1350,7 @@ function admFiltradas(){
       if(admProceso==="remite"  && !p.remite) return false;
       if(admProceso==="dias"    && !(Array.isArray(p.diasProceso) && p.diasProceso.length)) return false;
       if(admProceso==="sinCups" && (p.cups||"").trim()) return false;
-      if(admProceso==="sinTubo" && (p.tubo||"").trim()) return false;
+      if(admProceso==="sinTubo" && tubosDe(p).length) return false;
       if(!q) return true;
       return normalizar([p.nombre,p.cups,p.sinonimos,p.seccion].filter(Boolean).join(" ")).includes(q);
     });
@@ -1352,27 +1362,38 @@ function renderAdmLista(){
   const res = admFiltradas();
   const c = document.getElementById("admCount");
   if(c) c.textContent = `${res.length} de ${pruebas.length} ${pruebas.length===1?"prueba":"pruebas"}`;
-  cont.innerHTML = res.length ? res.map(p=>`
+  cont.innerHTML = res.length ? res.map(p=>{
+    const ts = tubosDe(p);
+    const tuboHtml = ts.length
+      ? ts.map(t=>`<span class="tubo-dot" style="background:${esc(t.c||'#7A6A55')}"></span><span>${esc(t.n)}</span>`).join(' <span class="tubo-plus">+</span> ')
+          + (p.volumen?`<span class="adm-vol">· ${esc(p.volumen)}</span>`:"")
+      : `<span class="adm-sin">Sin recipiente definido</span>`;
+    return `
     <div class="adm-item">
       <div class="an"><div class="adm-name">${esc(p.nombre)}</div>
         <div class="adm-code">${esc(p.cups||"sin CUPS")} · ${esc(p.seccion||"—")}${p.remite?" · remitida":""}</div>
-        <div class="adm-tubo">${p.tubo
-          ? `<span class="tubo-dot" style="background:${esc(p.tuboColor||'#7A6A55')}"></span><span>${esc(p.tubo)}</span>`
-              + (p.volumen?`<span class="adm-vol">· ${esc(p.volumen)}</span>`:"")
-          : `<span class="adm-sin">Sin recipiente definido</span>`}</div></div>
+        <div class="adm-tubo">${tuboHtml}</div></div>
       <button class="icon-btn" onclick="editarPrueba('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
       <button class="icon-btn del" onclick="borrarPrueba('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>
-    </div>`).join("")
+    </div>`;
+  }).join("")
     : '<p style="color:var(--ink-faint);text-align:center;padding:22px;font-size:13px">Ninguna prueba coincide con el filtro.</p>';
 }
 
-function editarPrueba(id){
+function editarPrueba(id, origen){
   editandoId = id;
+  edicionOrigen = origen === "detalle" ? "detalle" : "admin";
+  // Si la edición se abre directo desde el detalle (atajo de administrador),
+  // usamos el mismo sheet pero sin las pestañas de Administración, para no perder el contexto.
+  if(edicionOrigen === "detalle"){
+    abrir(document.getElementById("cfgSheet"));
+    document.querySelector(".cfg-tabs").style.display = "none";
+  }
   const p = id ? pruebas.find(x=>x.id===id) : {};
   const v = (k)=>esc(p[k]||"");
   const cons = p.conservacion || (p.refrigeracion ? "refrigeracion" : "ambiente");
   const diasSel = Array.isArray(p.diasProceso) ? p.diasProceso : [];
-  const tuboEsOtro = !!(p.tubo && !(cfg.tubos||[]).some(t=>t.n===p.tubo));
+  const tubosActuales = tubosDe(p);
   const listaServ = cfg.servicios || [];
   const marcados = Array.isArray(p.servicios) ? p.servicios : [];
   const tick = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>`;
@@ -1394,20 +1415,14 @@ function editarPrueba(id){
         <datalist id="secList">${secciones().filter(s=>s!=="Todos").map(s=>`<option value="${esc(s)}">`).join("")}</datalist></div>
     </div>
     <div class="form-row"><label>Sinónimos (para el buscador)</label><input class="inp" id="f_sinonimos" value="${v('sinonimos')}" placeholder="cuadro hematico, cbc"><div class="hint">Palabras alternas separadas por espacio o coma.</div></div>
-    <div class="form-row"><label>Tubo / recipiente</label>
-      <select class="sel" id="f_tuboPreset" onchange="cambiarTuboPreset()">
-        <option value="">— Sin especificar —</option>
-        ${(cfg.tubos||[]).map(t=>`<option value="${esc(t.n)}" data-c="${esc(t.c)}" ${p.tubo===t.n?'selected':''}>${esc(t.n)}</option>`).join("")}
-        <option value="__otro__" ${tuboEsOtro?'selected':''}>➕ Otro (solo para este examen)</option>
-      </select>
-      <div class="hint">La lista se administra en <b>Ajustes → Tubos y recipientes</b>.</div></div>
-    <div class="form-row" id="tuboOtroBox" style="display:${tuboEsOtro?'block':'none'}">
-      <label>Nombre y color del recipiente</label>
-      <div class="color-field">
-        <input type="color" id="f_tuboColor" value="${esc(p.tuboColor||'#8E5BC7')}">
-        <input class="inp" id="f_tuboOtro" value="${tuboEsOtro?esc(p.tubo||''):''}" placeholder="Ej. Tubo especial para metales">
-      </div>
-      <div class="hint">Este recipiente queda solo en esta prueba; no se agrega a la lista general.</div></div>
+    <div id="tuboSlots">
+      ${filaTubo(0, tubosActuales[0])}
+      ${filaTubo(1, tubosActuales[1])}
+      ${filaTubo(2, tubosActuales[2])}
+    </div>
+    <button type="button" class="btn ghost" id="btnAgregarTubo" onclick="agregarTuboSlot()" style="margin:2px 0 4px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Agregar otro tubo</button>
+    <div class="hint" style="margin:0 0 13px">Para muestras que requieren más de un recipiente, por ejemplo orina + tapa lila. La lista de recipientes se administra en <b>Ajustes → Tubos y recipientes</b>.</div>
     <div class="form-row"><label>Volumen</label><input class="inp" id="f_volumen" value="${v('volumen')}" placeholder="3 mL"></div>
     <div class="form-row"><label>Conservación de la muestra</label>
       <select class="sel" id="f_conservacion">
@@ -1440,19 +1455,91 @@ function editarPrueba(id){
       <input class="inp" id="f_motivoSuspension" value="${v('motivoSuspension')}" placeholder="Ej. Sin contrato vigente con el laboratorio">
       <div class="hint">Los servicios verán un aviso de que la prueba no se está procesando.</div></div>
     <div class="btn-row">
-      <button class="btn ghost" onclick="cfgTab='pruebas';renderCfg()">Volver</button>
+      <button class="btn ghost" onclick="volverDeEdicion()">Volver</button>
       <button class="btn" onclick="guardarPrueba()">Guardar</button>
     </div>
     <div class="hint" style="text-align:center;margin-top:12px">Los campos en blanco no se muestran en el detalle.</div>`;
   actualizarPistaTiempo();
+  actualizarBotonTubo();
 }
 
-// Muestra u oculta el campo de recipiente personalizado
-function cambiarTuboPreset(){
-  const sel = document.getElementById("f_tuboPreset");
-  const box = document.getElementById("tuboOtroBox");
+// Vuelve al detalle de la prueba (edición rápida) o a la lista de administración (edición normal)
+function volverDeEdicion(){
+  if(edicionOrigen === "detalle" && editandoId){ verDetalle(editandoId); }
+  else{ cfgTab='pruebas'; renderCfg(); }
+}
+
+/* --- Hasta 3 tubos por prueba --- */
+function filaTubo(idx, t){
+  t = t || {n:"", c:""};
+  const esOtro = !!(t.n && !(cfg.tubos||[]).some(x=>x.n===t.n));
+  const etiquetas = ["Tubo / recipiente","Segundo tubo (opcional)","Tercer tubo (opcional)"];
+  const mostrar = idx===0 || !!t.n;
+  return `<div class="form-row tubo-slot" id="tuboSlot_${idx}" style="${mostrar?'':'display:none'}">
+    <label>${etiquetas[idx]}${idx>0?` · <button type="button" class="tubo-quitar-link" onclick="quitarTuboSlot(${idx})">quitar</button>`:''}</label>
+    <select class="sel" id="f_tuboPreset_${idx}" onchange="cambiarTuboPreset(${idx})">
+      <option value="">— Sin especificar —</option>
+      ${(cfg.tubos||[]).map(x=>`<option value="${esc(x.n)}" data-c="${esc(x.c)}" ${t.n===x.n?'selected':''}>${esc(x.n)}</option>`).join("")}
+      <option value="__otro__" ${esOtro?'selected':''}>➕ Otro (solo para este examen)</option>
+    </select>
+    <div class="form-row" id="tuboOtroBox_${idx}" style="display:${esOtro?'block':'none'}; margin:8px 0 0">
+      <div class="color-field">
+        <input type="color" id="f_tuboColor_${idx}" value="${esc(t.c||'#8E5BC7')}">
+        <input class="inp" id="f_tuboOtro_${idx}" value="${esOtro?esc(t.n||''):''}" placeholder="Ej. Tubo especial para metales">
+      </div>
+    </div>
+  </div>`;
+}
+function cambiarTuboPreset(idx){
+  const sel = document.getElementById("f_tuboPreset_"+idx);
+  const box = document.getElementById("tuboOtroBox_"+idx);
   if(!sel || !box) return;
   box.style.display = sel.value === "__otro__" ? "block" : "none";
+}
+function actualizarBotonTubo(){
+  const btn = document.getElementById("btnAgregarTubo");
+  if(!btn) return;
+  const visibles = [0,1,2].filter(i=>{
+    const el = document.getElementById("tuboSlot_"+i);
+    return el && el.style.display !== "none";
+  }).length;
+  if(visibles >= 3){ btn.style.display = "none"; return; }
+  btn.style.display = "flex";
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> Agregar ${visibles===1?"segundo":"tercer"} tubo`;
+}
+function agregarTuboSlot(){
+  const siguiente = [1,2].find(i=>{
+    const el = document.getElementById("tuboSlot_"+i);
+    return el && el.style.display === "none";
+  });
+  if(siguiente===undefined) return;
+  document.getElementById("tuboSlot_"+siguiente).style.display = "block";
+  actualizarBotonTubo();
+}
+function quitarTuboSlot(idx){
+  const sel = document.getElementById("f_tuboPreset_"+idx);
+  if(sel) sel.value = "";
+  const box = document.getElementById("tuboOtroBox_"+idx);
+  if(box) box.style.display = "none";
+  const otro = document.getElementById("f_tuboOtro_"+idx);
+  if(otro) otro.value = "";
+  document.getElementById("tuboSlot_"+idx).style.display = "none";
+  actualizarBotonTubo();
+}
+function tuboElegidoIdx(idx){
+  const sel = document.getElementById("f_tuboPreset_"+idx);
+  const slot = document.getElementById("tuboSlot_"+idx);
+  if(!sel || !slot || slot.style.display === "none" || !sel.value) return null;
+  if(sel.value === "__otro__"){
+    const n = (document.getElementById("f_tuboOtro_"+idx)||{}).value || "";
+    const c = (document.getElementById("f_tuboColor_"+idx)||{}).value || "";
+    return n.trim() ? {n:n.trim(), c} : null;
+  }
+  const opt = sel.options[sel.selectedIndex];
+  return {n:sel.value, c:(opt && opt.dataset.c) || ""};
+}
+function tubosElegidos(){
+  return [0,1,2].map(tuboElegidoIdx).filter(Boolean);
 }
 
 // La etiqueta del tiempo cambia según haya o no días marcados
@@ -1471,26 +1558,16 @@ function actualizarPistaTiempo(){
   }
 }
 
-// Devuelve el recipiente elegido (de la lista o personalizado)
-function tuboElegido(){
-  const sel = document.getElementById("f_tuboPreset");
-  if(!sel || !sel.value) return {nombre:"", color:""};
-  if(sel.value === "__otro__"){
-    const n = (document.getElementById("f_tuboOtro")||{}).value || "";
-    const c = (document.getElementById("f_tuboColor")||{}).value || "";
-    return {nombre:n.trim(), color:n.trim()?c:""};
-  }
-  const opt = sel.options[sel.selectedIndex];
-  return {nombre:sel.value, color:(opt && opt.dataset.c) || ""};
-}
-
 async function guardarPrueba(){
   const g = (k)=>{ const e=document.getElementById("f_"+k); return e?e.value.trim():""; };
   const nombre = g("nombre");
   if(!nombre){ toast("El nombre es obligatorio", true); return; }
+  const tubosSel = tubosElegidos();
   const data = {
     nombre, cups:g("cups"), seccion:g("seccion"), sinonimos:g("sinonimos"),
-    tubo:tuboElegido().nombre, tuboColor:tuboElegido().color, volumen:g("volumen"),
+    tubos:tubosSel,
+    tubo:tubosSel[0]?tubosSel[0].n:"", tuboColor:tubosSel[0]?tubosSel[0].c:"", // compatibilidad con datos antiguos
+    volumen:g("volumen"),
     conservacion:(document.getElementById("f_conservacion")||{}).value || "ambiente",
     transporte:g("transporte"), tiempoResultado:g("tiempoResultado"),
     diasProceso:Array.from(document.querySelectorAll("#dayPicker .day-pick.on")).map(e=>e.dataset.dia),
@@ -1514,7 +1591,8 @@ async function guardarPrueba(){
     guardarLocal(); render();
   }
   toast(editandoId?"Prueba actualizada":"Prueba agregada");
-  cfgTab="pruebas"; renderCfg();
+  if(edicionOrigen === "detalle" && editandoId){ verDetalle(editandoId); }
+  else{ cfgTab="pruebas"; renderCfg(); }
 }
 
 async function borrarPrueba(id){
@@ -2025,10 +2103,20 @@ async function propagarCambios(renServ, servEliminados, renTubo, renLab, renSec)
       if(ahora.join("|") !== antes) upd.servicios = ahora;
     }
 
-    if(hayTubo && p.tubo && renTubo[p.tubo]){
-      const t = renTubo[p.tubo];
-      if(t.n !== p.tubo) upd.tubo = t.n;
-      if(t.c !== p.tuboColor) upd.tuboColor = t.c;
+    if(hayTubo){
+      const ts = tubosDe(p);
+      if(ts.length){
+        let cambio = false;
+        const nuevos = ts.map(t=>{
+          if(renTubo[t.n]){ cambio = true; return {n:renTubo[t.n].n, c:renTubo[t.n].c}; }
+          return t;
+        });
+        if(cambio){
+          upd.tubos = nuevos;
+          upd.tubo = nuevos[0] ? nuevos[0].n : "";       // compatibilidad
+          upd.tuboColor = nuevos[0] ? nuevos[0].c : "";  // compatibilidad
+        }
+      }
     }
 
     if(hayLab && p.laboratorioRef && renLab[p.laboratorioRef])
@@ -2121,6 +2209,14 @@ function toast(msg, err){
 }
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// Devuelve la lista de tubos/recipientes de una prueba (hasta 3), compatible
+// con el dato antiguo de un solo tubo (p.tubo / p.tuboColor).
+function tubosDe(p){
+  if(Array.isArray(p.tubos) && p.tubos.length) return p.tubos.filter(t=>t && t.n);
+  if(p.tubo) return [{n:p.tubo, c:p.tuboColor||""}];
+  return [];
+}
+
 /* ====================== EVENTOS ====================== */
 document.getElementById("searchInput").addEventListener("input", e=>{
   termino = e.target.value;
@@ -2150,7 +2246,10 @@ document.getElementById("gearBtn").addEventListener("click", ()=>{
   pedirClave(()=>abrirConfig(), "Clave del laboratorio o de administrador.", "lab");
 });
 document.getElementById("scrim").addEventListener("click", cerrar);
-document.getElementById("cfgClose").addEventListener("click", cerrar);
+document.getElementById("cfgClose").addEventListener("click", ()=>{
+  if(edicionOrigen === "detalle" && editandoId) verDetalle(editandoId);
+  else cerrar();
+});
 document.getElementById("pwBtn").addEventListener("click", intentarLogin);
 document.getElementById("pwCancel").addEventListener("click", cerrar);
 document.getElementById("pwInput").addEventListener("keydown", e=>{ if(e.key==="Enter") intentarLogin(); });
