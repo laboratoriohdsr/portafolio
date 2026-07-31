@@ -138,7 +138,7 @@
   .blood-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
 
   /* ---------- Buscador ---------- */
-  .search-wrap{position:sticky; top:0; z-index:30; background:var(--paper); padding:14px 0 10px}
+  .search-wrap{position:sticky; top:0; z-index:30; background:var(--paper); padding:14px 0 10px; scroll-margin-top:0}
   .search{
     display:flex; align-items:center; gap:10px; background:var(--surface);
     border:1.5px solid var(--line-strong); border-radius:var(--r);
@@ -609,7 +609,7 @@
   <div id="notaBox"></div>
   <div id="modeFlag"></div>
 
-  <div class="search-wrap">
+  <div class="search-wrap" id="searchWrap">
     <div class="search" id="searchBox">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="searchInput" type="search" placeholder="Buscar prueba, código CUPS…" autocomplete="off" enterkeyhint="search">
@@ -2220,11 +2220,28 @@ function tubosDe(p){
   return [];
 }
 
+/* Evita que la app "brinque" cuando se abre el teclado sobre el buscador:
+   lo sube al tope (donde ya queda fijo, igual que al hacer scroll) de una
+   sola vez, en lugar de dejar que el navegador lo desplace a medias. */
+function fijarBuscador(){
+  const wrap = document.getElementById("searchWrap");
+  if(!wrap) return;
+  const top = wrap.getBoundingClientRect().top;
+  if(top > 0) window.scrollBy({top, left:0, behavior:"auto"});
+}
+
 /* ====================== EVENTOS ====================== */
 document.getElementById("searchInput").addEventListener("input", e=>{
   termino = e.target.value;
   document.getElementById("searchBox").classList.toggle("has-text", !!termino);
   renderLista();
+  fijarBuscador();
+});
+document.getElementById("searchInput").addEventListener("focus", ()=>{
+  fijarBuscador();
+  // el teclado tarda un instante en abrir y puede volver a mover la vista
+  setTimeout(fijarBuscador, 60);
+  setTimeout(fijarBuscador, 300);
 });
 document.getElementById("searchBox").addEventListener("click", e=>{
   if(e.target.closest(".clear")) return;
