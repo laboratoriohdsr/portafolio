@@ -100,6 +100,17 @@
   }
   .gear:active{background:rgba(255,255,255,.3)}
   .gear svg{width:21px; height:21px}
+  .candado{
+    width:40px; height:40px; border-radius:11px; flex-shrink:0;
+    background:rgba(255,255,255,.16); display:grid; place-items:center;
+    color:#fff; transition:background .15s; position:relative;
+  }
+  .candado::after{
+    content:""; position:absolute; top:8px; right:8px; width:7px; height:7px;
+    background:#7BE3A0; border-radius:50%; border:1.5px solid var(--accent-deep);
+  }
+  .candado:active{background:rgba(255,255,255,.3)}
+  .candado svg{width:20px; height:20px}
 
   /* ---------- Reserva de sangre ---------- */
   .blood{
@@ -480,6 +491,13 @@
   .sheet-head .x{position:absolute; top:14px; right:16px; width:34px; height:34px; border-radius:50%; background:var(--surface-2); color:var(--ink-soft); font-size:20px; display:grid; place-items:center; cursor:pointer}
   .sheet-head .edit-fab{right:58px; background:var(--primary-tint); color:var(--primary-deep)}
   .sheet-head .edit-fab svg{width:16px; height:16px}
+  .btn-guardar-top{
+    position:absolute; top:8px; right:56px; display:flex; align-items:center; gap:6px;
+    padding:9px 15px; border-radius:20px; background:var(--primary); color:#fff;
+    font-weight:700; font-size:13.5px; box-shadow:0 2px 8px rgba(7,127,152,.28);
+  }
+  .btn-guardar-top svg{width:16px; height:16px}
+  .btn-guardar-top:active{background:var(--primary-deep); transform:scale(.97)}
   .sheet-title{font-family:"Archivo",sans-serif; font-weight:800; font-size:19px; line-height:1.18; padding-right:40px; letter-spacing:-.01em}
   .sheet-sub{margin-top:5px; display:flex; gap:8px; flex-wrap:wrap; align-items:center}
   .sheet-body{
@@ -649,6 +667,9 @@
         <h1 class="brand" id="hName">Laboratorio Clínico</h1>
         <div class="subbrand" id="hSub">Hospital Departamental San Rafael de Zarzal</div>
       </div>
+      <button class="candado" id="lockBtn" onclick="cerrarSesionEdicion()" aria-label="Cerrar edición" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+      </button>
       <button class="gear" id="gearBtn" aria-label="Configuración">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
@@ -730,6 +751,10 @@
   </div>
   <div class="sheet-head" style="padding-top:12px; position:relative; border:none">
     <button class="x" id="cfgClose">×</button>
+    <button class="btn-guardar-top" id="btnGuardarTop" onclick="guardarPrueba()" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+      Guardar
+    </button>
     <div class="sheet-title" id="cfgTitle" style="font-size:17px">Administración</div>
   </div>
   <div class="sheet-body" id="cfgBody"></div>
@@ -1466,6 +1491,8 @@ function abrirConfig(tab){
   abrir(document.getElementById("cfgSheet"));
 }
 function renderCfg(){
+  const bg = document.getElementById("btnGuardarTop");
+  if(bg) bg.style.display = "none";   // solo se ve dentro del editor de prueba
   document.getElementById("cfgTitle").textContent =
     cfgTab==="pruebas"?"Pruebas del portafolio": cfgTab==="sangre"?"Reserva de sangre":"Ajustes generales";
   const b = document.getElementById("cfgBody");
@@ -1578,6 +1605,7 @@ function editarPrueba(id, origen){
     : `<div class="hint">Aún no hay servicios. Créalos primero en <b>Ajustes → Servicios</b> y vuelve a editar la prueba.</div>`;
 
   document.getElementById("cfgTitle").textContent = id?"Editar prueba":"Nueva prueba";
+  document.getElementById("btnGuardarTop").style.display = "flex";
   document.getElementById("cfgBody").innerHTML = `
     <div class="form-row"><label>Nombre de la prueba *</label><input class="inp" id="f_nombre" value="${v('nombre')}" placeholder="Ej. Hemograma IV"></div>
     <div class="form-two">
@@ -1636,10 +1664,23 @@ function editarPrueba(id, origen){
     <div class="hint" style="text-align:center;margin-top:12px">Los campos en blanco no se muestran en el detalle.</div>`;
   actualizarPistaTiempo();
   actualizarBotonTubo();
+  // Guardar la "firma" inicial del formulario para detectar cambios luego.
+  // Se hace en el próximo ciclo para que los selects de tubos ya estén puestos.
+  setTimeout(()=>{ firmaEdicion = firmarFormulario(); }, 0);
 }
 
-// Vuelve al detalle de la prueba (edición rápida) o a la lista de administración (edición normal)
+// Vuelve al detalle de la prueba (edición rápida) o a la lista de administración (edición normal).
+// Si hay cambios sin guardar, pregunta antes de salir.
 function volverDeEdicion(){
+  if(hayCambiosSinGuardar()){
+    if(!confirm("Hiciste cambios sin guardar.\n\n¿Salir sin guardarlos?")) return;
+  }
+  firmaEdicion = null;
+  salirDelEditor();
+}
+
+// Sale del editor al destino que corresponda, sin preguntar (ya se decidió antes).
+function salirDelEditor(){
   if(edicionOrigen === "detalle" && editandoId){ verDetalle(editandoId); }
   else{ cfgTab='pruebas'; renderCfg(); }
 }
@@ -1758,15 +1799,14 @@ function actualizarPistaTiempo(){
   }
 }
 
-async function guardarPrueba(){
+// Lee todos los campos del formulario de edición y arma el objeto de datos.
+function datosDelFormulario(){
   const g = (k)=>{ const e=document.getElementById("f_"+k); return e?e.value.trim():""; };
-  const nombre = g("nombre");
-  if(!nombre){ toast("El nombre es obligatorio", true); return; }
   const tubosSel = tubosElegidos();
-  const data = {
-    nombre, cups:g("cups"), seccion:g("seccion"), sinonimos:g("sinonimos"),
+  return {
+    nombre:g("nombre"), cups:g("cups"), seccion:g("seccion"), sinonimos:g("sinonimos"),
     tubos:tubosSel,
-    tubo:tubosSel[0]?tubosSel[0].n:"", tuboColor:tubosSel[0]?tubosSel[0].c:"", // compatibilidad con datos antiguos
+    tubo:tubosSel[0]?tubosSel[0].n:"", tuboColor:tubosSel[0]?tubosSel[0].c:"",
     volumen:g("volumen"),
     conservacion:(document.getElementById("f_conservacion")||{}).value || "ambiente",
     transporte:g("transporte"), tiempoResultado:g("tiempoResultado"),
@@ -1780,6 +1820,23 @@ async function guardarPrueba(){
     suspendida:document.getElementById("f_suspendida").classList.contains("on"),
     motivoSuspension:g("motivoSuspension")
   };
+}
+
+// "Firma" del formulario: un texto que representa su contenido. Sirve para
+// saber si el usuario cambió algo (comparando la de ahora con la del inicio).
+let firmaEdicion = null;
+function firmarFormulario(){
+  try{ return JSON.stringify(datosDelFormulario()); }catch(e){ return null; }
+}
+function hayCambiosSinGuardar(){
+  return firmaEdicion !== null && firmaEdicion !== firmarFormulario();
+}
+
+async function guardarPrueba(){
+  const g = (k)=>{ const e=document.getElementById("f_"+k); return e?e.value.trim():""; };
+  const nombre = g("nombre");
+  if(!nombre){ toast("El nombre es obligatorio", true); return; }
+  const data = datosDelFormulario();
   if(USA_FIREBASE){
     try{
       if(editandoId) await db.collection("pruebas").doc(editandoId).set(data);
@@ -1790,6 +1847,7 @@ async function guardarPrueba(){
     else pruebas.push({id:"loc"+Date.now(),...data});
     guardarLocal(); render();
   }
+  firmaEdicion = null;   // ya se guardó: no hay cambios pendientes
   toast(editandoId?"Prueba actualizada":"Prueba agregada");
   if(edicionOrigen === "detalle" && editandoId){ verDetalle(editandoId); }
   else{ cfgTab="pruebas"; renderCfg(); }
@@ -2381,7 +2439,7 @@ async function propagarCambios(renServ, servEliminados, renTubo, renLab, renSec)
   return cambios.length;
 }
 
-function cerrarSesion(){ nivel=null; cerrar(); toast("Sesión cerrada"); }
+function cerrarSesion(){ nivel=null; actualizarCandado(); cerrar(); toast("Sesión cerrada"); }
 
 /* ====================== LOGIN POR NIVELES ======================
    LABORATORIO -> indicaciones internas, hemocomponentes y avisos
@@ -2410,12 +2468,32 @@ function intentarLogin(){
   }
   if(ok){
     cerrar();
+    actualizarCandado();
     const a = accionTrasLogin; accionTrasLogin = null;
     setTimeout(()=>{ if(a) a(); }, 260);
   }else{
     toast("Clave incorrecta", true);
     document.getElementById("pwInput").value = "";
   }
+}
+
+// Muestra el candado en el encabezado solo cuando hay sesión abierta (lab o admin)
+function actualizarCandado(){
+  const b = document.getElementById("lockBtn");
+  if(b) b.style.display = nivel ? "grid" : "none";
+}
+
+// Cierra la sesión de edición desde el candado del encabezado
+function cerrarSesionEdicion(){
+  if(!nivel) return;
+  if(!confirm("¿Cerrar la sesión de edición?\n\nTendrás que volver a ingresar la clave para editar.")) return;
+  nivel = null;
+  actualizarCandado();
+  // si hay algún panel de edición abierto, cerrarlo
+  const sheet = document.querySelector(".sheet.on");
+  if(sheet) cerrar();
+  renderLista();
+  toast("Sesión de edición cerrada");
 }
 
 /* ====================== UTILIDADES UI ====================== */
@@ -2508,8 +2586,21 @@ document.getElementById("bloodEditBtn").addEventListener("click", ()=>{
 document.getElementById("gearBtn").addEventListener("click", ()=>{
   pedirClave(()=>abrirConfig(), "Clave del laboratorio o de administrador.", "lab");
 });
-document.getElementById("scrim").addEventListener("click", cerrar);
+document.getElementById("scrim").addEventListener("click", ()=>{
+  const editando = document.getElementById("btnGuardarTop").style.display === "flex";
+  if(editando && hayCambiosSinGuardar()){
+    if(!confirm("Hiciste cambios sin guardar.\n\n¿Salir sin guardarlos?")) return;
+  }
+  firmaEdicion = null;
+  cerrar();
+});
 document.getElementById("cfgClose").addEventListener("click", ()=>{
+  // Si se está editando una prueba y hay cambios, preguntar antes de cerrar
+  const editando = document.getElementById("btnGuardarTop").style.display === "flex";
+  if(editando && hayCambiosSinGuardar()){
+    if(!confirm("Hiciste cambios sin guardar.\n\n¿Salir sin guardarlos?")) return;
+  }
+  firmaEdicion = null;
   if(edicionOrigen === "detalle" && editandoId) verDetalle(editandoId);
   else cerrar();
 });
