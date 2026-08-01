@@ -393,12 +393,19 @@
   }
   .seg.on{background:var(--accent); color:#fff; border-color:var(--accent)}
 
-  /* Separador entre procesando y no disponibles en la lista */
-  .sep-susp{
+  /* Separadores entre grupos de la lista (aquí · remitidas · no disponibles) */
+  .sep-grupo{
     display:flex; align-items:center; gap:11px; margin:20px 2px 12px;
-    color:var(--blood); font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
   }
-  .sep-susp::before, .sep-susp::after{content:""; flex:1; height:1px; background:color-mix(in srgb, var(--blood) 28%, transparent)}
+  .sep-grupo::before, .sep-grupo::after{content:""; flex:1; height:1px}
+  .sep-grupo svg{width:15px; height:15px}
+  /* Se remiten: en tono de acento (cyan/teal) */
+  .sep-remite{color:var(--primary-deep)}
+  .sep-remite::before, .sep-remite::after{background:color-mix(in srgb, var(--primary) 28%, transparent)}
+  /* No disponibles: en rojo */
+  .sep-susp{color:var(--blood)}
+  .sep-susp::before, .sep-susp::after{background:color-mix(in srgb, var(--blood) 28%, transparent)}
   .sep-susp svg{width:15px; height:15px}
 
   /* Atajos de disponibilidad */
@@ -1223,12 +1230,17 @@ function filtradas(){
     if(!q) return true;
     return normalizar([p.nombre,p.cups,p.sinonimos,p.seccion].filter(Boolean).join(" ")).includes(q);
   }).sort((a,b)=>{
-    // Primero las que se están procesando; las suspendidas van al final.
-    const sa = a.suspendida ? 1 : 0, sb = b.suspendida ? 1 : 0;
-    if(sa !== sb) return sa - sb;
+    // Orden por grupos: 0) se procesa aquí, 1) se remite, 2) no disponible.
+    // Dentro de cada grupo, alfabético. Así el médico ve primero lo que se hace aquí.
+    const grupo = p => p.suspendida ? 2 : (p.remite ? 1 : 0);
+    const ga = grupo(a), gb = grupo(b);
+    if(ga !== gb) return ga - gb;
     return (a.nombre||"").localeCompare(b.nombre||"");
   });
 }
+
+// Grupo al que pertenece una prueba (para los separadores de la lista)
+function grupoDe(p){ return p.suspendida ? 2 : (p.remite ? 1 : 0); }
 
 function renderLista(){
   const list = document.getElementById("list");
@@ -1291,16 +1303,32 @@ function renderLista(){
     </button>`;
   }).join("");
 
-  // Separador visual: si en la vista aparecen ambos grupos, marcar dónde empiezan las no disponibles
+  // Separadores entre los tres grupos (solo cuando se ven todas juntas).
+  // Se insertan de abajo hacia arriba para no desajustar los índices.
   if(filtroEstado === "todas"){
-    const idx = res.findIndex(p=>p.suspendida);
-    if(idx > 0){
-      const items = list.children;
-      if(items[idx]){
+    const idxSusp   = res.findIndex(p=>p.suspendida);
+    const idxRemite = res.findIndex(p=>!p.suspendida && p.remite);
+    const items = list.children;
+
+    const iconoRemite = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+    const iconoSusp   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>`;
+
+    // Primero el de "no disponibles" (índice mayor)
+    if(idxSusp > 0 && items[idxSusp]){
+      const sep = document.createElement("div");
+      sep.className = "sep-grupo sep-susp";
+      sep.innerHTML = `${iconoSusp} No disponibles temporalmente`;
+      list.insertBefore(sep, items[idxSusp]);
+    }
+    // Luego el de "se remiten" (índice menor); se recalcula items por el insert anterior
+    if(idxRemite > 0){
+      const items2 = list.children;
+      // el índice de remite no cambió porque el separador de susp va después
+      if(items2[idxRemite]){
         const sep = document.createElement("div");
-        sep.className = "sep-susp";
-        sep.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg> No disponibles temporalmente`;
-        list.insertBefore(sep, items[idx]);
+        sep.className = "sep-grupo sep-remite";
+        sep.innerHTML = `${iconoRemite} Se procesan en otra institución`;
+        list.insertBefore(sep, items2[idxRemite]);
       }
     }
   }
